@@ -1,55 +1,33 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-main>
-      <router-view/>
-    </v-main>
+    <main>
+      <!-- <router-link @click="showMenu = false" to="/order" tag="span" active-class="primary--text" style="cursor: pointer">New order</router-link>
+      <router-link @click.native="showMenu = true" to="/order" tag="span" active-class="primary--text" style="cursor: pointer">New order</router-link> -->
+      <router-view></router-view>
+    </main>
   </v-app>
 </template>
 
 <script>
-
 export default {
-  name: 'App',
+  data() {
+    return {
 
-  data: () => ({
-    //
-  }),
-};
+    }
+  }
+}
 </script>
+
+<style scoped>
+.background {
+  background-color: #FF9800;
+}
+
+.bgV-list {
+  background-color: #FFE0B2;
+}
+
+.fontV-list {
+  color: #FFCC80;
+}
+</style>
