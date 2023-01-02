@@ -4,36 +4,29 @@
                 <v-app-bar-nav-icon @click.stop="sideNav = !sideNav" class="hidden-sm-and-up" color="white">
                 </v-app-bar-nav-icon>
             <v-toolbar-title>
-                <!-- <router-link to="/" tag="span" style="cursor: pointer"> -->
                 <v-icon dark>mdi-bank</v-icon>
-                <!-- <img src="@/assets/kiosk_logo.png"> -->
                 <font color="white">Account <font size="2">V.1.3.8</font>
                 </font>
-                <!-- {{$store.state.isAdmin}}{{$store.state.user}} -->
-                <!-- {{user}} -->
-                <!-- </router-link> -->
             </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-toolbar-items class="hidden-xs-only hidden-sm-only">
                 <v-menu open-on-hover offset-y bottom v-for="item in menuItem" :key="item.title">
                     <template v-slot:activator="{ on }">
-                        <v-btn flat v-on="on" class="indigo white--text">
+                        <v-btn v-on="on" class="indigo white--text">
                             <v-icon>{{ item.icon }}</v-icon>
                             {{ item.title }}
                         </v-btn>
                     </template>
                     <v-list>
-                        <!-- <v-list-tile v-for="subItem in item.items" :key="subItem.title" router :to="subItem.link" @click="logout">
-              <v-list-tile-title>{{subItem.title}}</v-list-tile-title>
-            </v-list-tile> -->
                         <template v-for="subItem in item.items">
-                            <v-list-tile v-if="subItem.title == 'Logout'" :to="subItem.link" :key="subItem.title"
+                            <v-btn v-if="subItem.title == 'Logout'" :to="subItem.link" :key="subItem.title"
                                 @click="logout">
-                                <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
-                            </v-list-tile>
-                            <v-list-tile v-else :to="subItem.link" :key="subItem.title">
-                                <v-list-tile-title>{{ subItem.title }}</v-list-tile-title>
-                            </v-list-tile>
+                                {{ subItem.title }}
+                            </v-btn>
+                            <v-btn v-else :to="subItem.link" 
+                            :key="subItem.title">
+                                {{ subItem.title }}
+                            </v-btn>
                         </template>
                     </v-list>
                 </v-menu>
@@ -42,29 +35,26 @@
 
         <v-navigation-drawer temporary v-model="sideNav" absolute>
             <v-list>
-                <v-list-group v-for="item in navItem" :key="item.title" v-model="item.active"
-                    :prepend-icon="item.action" no-action>
+                <v-list-group v-for="item in navItem" :key="item.title" v-model="item.active" :prepend-icon="item.action"
+                    no-action>
                     <template v-slot:activator>
-                        <v-list-tile>
-                            <v-list-tile-content>
-                                <v-list-tile-title>{{ item.title }}</v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
+                        <v-btn>
+                                {{ item.title }}
+                        </v-btn>
                     </template>
-                    <v-list-tile v-for="subItem in item.items" :key="subItem.title" :to="subItem.link">
-                        <v-list-tile-content>
-                            <v-list-tile-title v-if="subItem.title == 'Logout'" @click="logout">{{ subItem.title }}</v-list-tile-title>
-                            <v-list-tile-title v-else>{{ subItem.title }}</v-list-tile-title>
-                        </v-list-tile-content>
-                    </v-list-tile>
+                    <v-card v-for="subItem in item.items" :key="subItem.title" :to="subItem.link">
+                            <v-btn v-if="subItem.title == 'Logout'" @click="logout">{{ subItem.title
+                                }}</v-btn>
+                            <v-btn v-else>{{ subItem.title }}</v-btn>
+                    </v-card>
                 </v-list-group>
             </v-list>
-        </v-navigation-drawer>
+        </v-navigation-drawer> 
     </div>
 </template>
 
 <script>
-import { auth } from '@/firebase'
+import { getAuth } from 'firebase/auth'
 export default {
     data() {
         return {
@@ -376,7 +366,7 @@ export default {
             // return this.menuItem
         },
         logout() {
-            auth.signOut()
+            getAuth().signOut()
             // sessionStorage.isAdmin == 'null'
             this.$router.push('/')
         }

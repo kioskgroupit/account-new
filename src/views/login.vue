@@ -1,6 +1,6 @@
 <template>
     <v-app>
-        <mainMenu></mainMenu>
+        <!-- <mainMenu></mainMenu> -->
         <v-container fluid fill-height loginOverlay>
             <v-layout flex align-center justify-center>
                 <v-flex xs12 sm4 elevation-6>
@@ -61,14 +61,13 @@
     </v-app>
 </template>
 <script>
-import { auth, functions } from '@/firebase'
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth'
 
 
-// import store from './store'
-import mainMenu from '@/components/mainMenu.vue'
+// import mainMenu from '@/components/mainMenu.vue'
 export default {
     components:{
-        mainMenu
+        // mainMenu
     },
     data() {
         return {
@@ -104,39 +103,14 @@ export default {
                 this.$refs.focusPass.focus()
             }
             else {
-                auth.signInWithEmailAndPassword(this.email, this.password)
+                signInWithEmailAndPassword(getAuth(), this.email, this.password)
                     .then(() => {
-                        // auth.onAuthStateChanged(user=> {
-                        //     if(user){
-                        //         this.$router.push("/index")
-                        //     }
-                        //     else{
-                        //         this.$router.push("/")
-                        //     }
-                        // })
-                        // this.$router.replace("index")
+                        // alert("login successfully!")
                     })
                     .catch(() => {
                         alert("Please enter your username and password again.")
                     })
             }
-        },
-        onAddAdmin() {
-            // let app = this
-            // const addAdminRole = fire.functions.httpsCallable('addAdminRole');
-            const addAdminRole = functions.httpsCallable('addAdminRole');
-            addAdminRole({ email: this.email }).then(result => {
-                console.log(result);
-                // app.addAdminResult = result.message
-            });
-        },
-        onListUsers() {
-            // const listUser = fire.functions.httpsCallable('listAllUser');
-            const listUser = functions.httpsCallable('listAllUser');
-            listUser().then(result => {
-                console.log(result);
-                // app.addAdminResult = result.message
-            });
         },
         showReset() {
             this.showRePass = true
@@ -153,7 +127,7 @@ export default {
                 this.$nextTick(() => { this.$refs.focusEmail.focus() })
             }
             else {
-                auth.sendPasswordResetEmail(this.resetPass)
+                sendPasswordResetEmail(getAuth(), this.resetPass)
                     .then(() => {
                         alert("Password reset e-mail send.")
                         this.cancelResetPass()
@@ -171,15 +145,15 @@ export default {
         }
     },
     mounted() {
-        auth.onAuthStateChanged(user => {
+        getAuth().onAuthStateChanged(user => {
             if (user) {
                 user.getIdTokenResult().then(idTokenResult => {
                     if (idTokenResult.claims.admin) {
-                        this.$store.commit('setAdmin')
+                        // this.$store.commit('setAdmin')
                         sessionStorage.isAdmin = 'true'
                     }
                     else {
-                        this.$store.commit('clearAdmin')
+                        // this.$store.commit('clearAdmin')
                         sessionStorage.isAdmin = 'false'
                     }
                 })
@@ -189,7 +163,7 @@ export default {
                 this.$router.currentRoute.name !== 'index' && this.$router.push({ name: 'index' })
             }
             else {
-                this.$store.commit('clearUser')
+                this.$store.commit('nullUser')
                 sessionStorage.user = 'null'
                 sessionStorage.isAdmin = 'false'
             }

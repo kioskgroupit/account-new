@@ -139,6 +139,6 @@ export default new VueRouter({
       // props: true,
       name: 'newpv',
       component: () => import('@/views/newpv.vue') 
-    },
+     },
   ],
 })
