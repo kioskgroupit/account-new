@@ -19,14 +19,16 @@
                     </template>
                     <v-list>
                         <template v-for="subItem in item.items">
-                            <v-btn v-if="subItem.title == 'Logout'" :to="subItem.link" :key="subItem.title"
-                                @click="logout">
-                                {{ subItem.title }}
-                            </v-btn>
-                            <v-btn v-else :to="subItem.link" 
+                            <v-list-item-group>
+                            <v-list-item v-if="subItem.title == 'Logout'" :to="subItem.link" 
+                            :key="subItem.title" @click="logout">
+                                <v-list-item-title>{{ subItem.title }}</v-list-item-title>
+                            </v-list-item>
+                            <v-list-item v-else :to="subItem.link" 
                             :key="subItem.title">
-                                {{ subItem.title }}
-                            </v-btn>
+                                <v-list-item-content>{{ subItem.title }}</v-list-item-content>
+                            </v-list-item>
+                          </v-list-item-group>
                         </template>
                     </v-list>
                 </v-menu>
@@ -38,15 +40,16 @@
                 <v-list-group v-for="item in navItem" :key="item.title" v-model="item.active" :prepend-icon="item.action"
                     no-action>
                     <template v-slot:activator>
-                        <v-btn>
+                        <v-list-item>
                                 {{ item.title }}
-                        </v-btn>
+                        </v-list-item>
                     </template>
-                    <v-card v-for="subItem in item.items" :key="subItem.title" :to="subItem.link">
-                            <v-btn v-if="subItem.title == 'Logout'" @click="logout">{{ subItem.title
-                                }}</v-btn>
-                            <v-btn v-else>{{ subItem.title }}</v-btn>
-                    </v-card>
+                    <v-list-item v-for="subItem in item.items" :key="subItem.title" :to="subItem.link">
+                        <v-list-item v-if="subItem.title == 'Logout'" @click="logout">
+                           <v-list-item-title>{{ subItem.title}}</v-list-item-title> 
+                        </v-list-item>
+                            <v-list-item-content v-else>{{ subItem.title }}</v-list-item-content>
+                    </v-list-item>
                 </v-list-group>
             </v-list>
         </v-navigation-drawer> 
