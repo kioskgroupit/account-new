@@ -5,6 +5,7 @@ import store from './store'
 import vuetify from './plugins/vuetify'
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 
 
 Vue.config.productionTip = false
@@ -28,4 +29,5 @@ new Vue({
 }).$mount('#app')
 
 const auth = getAuth()
-export { auth }
+const { db } = getFirestore()
+export { auth, db }
