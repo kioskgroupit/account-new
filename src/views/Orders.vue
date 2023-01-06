@@ -79,10 +79,17 @@
                                     <td hidden class="text-xs-left">{{props.item.dc}}</td>
                                     <td class="justify-center layout px-0">
                                         <v-tooltip left>
-                                            <template v-slot:activator="{ on }">
+                                                <v-menu offset-y>
+                                                    <template v-slot:activator="{ on, attrs }">
+                                                        <v-icon v-bind="attrs" v-on="on">
+                                                            mdi-check-circle
+                                                        </v-icon>
+                                                    </template>
+                                                </v-menu>
+                                            <!-- <template v-slot:activator="{ on }">
                                                 <v-icon class="mr-1" @click="searchItem(props.item)"
-                                                    v-on="on">check_circle_outline</v-icon>
-                                            </template>
+                                                    v-on="on">mdi-check-circle</v-icon>
+                                            </template> -->
                                             <span>Choose this customer</span>
                                         </v-tooltip>
                                     </td>
@@ -172,11 +179,18 @@
                                                                         ",")}}</td>
                                                                     <td class="justify-center layout px-0">
                                                                         <v-tooltip right>
-                                                                            <template v-slot:activator="{ on }">
+                                                                            <v-menu offset-y>
+                                                                                <template v-slot:activator="{ on, attrs }">
+                                                                                    <v-icon v-bind="attrs" v-on="on">
+                                                                                        mdi-check-circle
+                                                                                    </v-icon>
+                                                                                </template>
+                                                                            </v-menu>
+                                                                            <!-- <template v-slot:activator="{ on }">
                                                                                 <v-icon class="mr-1"
                                                                                     @click="selectProCode(props.item)"
-                                                                                    v-on="on">check_circle_outline</v-icon>
-                                                                            </template>
+                                                                                    v-on="on">mdi-check-circle</v-icon>
+                                                                            </template> -->
                                                                             <span>Choose this product</span>
                                                                         </v-tooltip>
                                                                     </td>
@@ -505,13 +519,13 @@
 </template>
 <script>
 
-import { collection, getDocs, getFirestore } from "firebase/firestore";
-// import VueNumeric from 'vue-numeric'
+import { collection, getDocs, where, getFirestore } from "firebase/firestore";
+import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
 export default {
     components: {
-        // VueNumeric,
+        VueNumeric,
         mainMenu
     },
     data() {
@@ -590,11 +604,11 @@ export default {
 
             headers: [
                 { text: 'Customer code', align: 'center', value: 'code' },
-                { text: 'Customer name', sortable: false, align: 'center' },
-                { text: 'Address', sortable: false, align: 'center' },
-                { text: 'Contact name', sortable: false, align: 'center' },
-                { text: 'Telephone number', sortable: false, align: 'center' },
-                { text: '', sortable: false, align: 'center' },
+                { text: 'Customer name', sortable: false, align: 'center', value: 'name' },
+                { text: 'Address', sortable: false, align: 'center', value: 'address' },
+                { text: 'Contact name', sortable: false, align: 'center', value: 'contact' },
+                { text: 'Telephone number', sortable: false, align: 'center', value: 'tel'},
+                { text: '', sortable: false, align: 'center'},
             ],
 
             itemPayMent: [],
@@ -638,13 +652,14 @@ export default {
                 let app = this
                 // let searchN = this.searchName + '\uf8ff'
                 const db = getFirestore()
-                const docRef = await getDocs(collection(db, "customer"), ("name"),(this.searchName),(this.searchName + "\uf8ff"));
+                // const docRef = await getDocs(collection(db, "customer"));
+                const docRef = await getDocs(collection(db, "customer"));
                 docRef.forEach(() => {
                     app.customer = []
                     docRef.forEach(function (doc) {
                         let curDoc = doc.data()
                         app.customer.push(curDoc)
-
+                        // console.log(app.customer[0].name)
                     })
                     if (app.customer.length == 0) {
                         alert("This customer name is not in the system.")
@@ -670,9 +685,9 @@ export default {
                         this.tel = ''
                     }
                 })
-                    // .catch(function (error) {
-                    //     console.log("Error getting documents: ", error)
-                    // })
+                // .catch(function (error) {
+                //         console.log("Error getting documents: ", error)
+                //     })
             }
         },
 
@@ -685,7 +700,7 @@ export default {
             else {
                 let app = this
                 const db = getFirestore()
-                const docRef = await getDocs(collection(db, "customer"), ("code"),(this.searchCode.toUpperCase()),(this.searchCode.toUpperCase() + "\uf8ff"));
+                const docRef = await getDocs(collection(db, "customer"), where("code"),(this.searchCode.toUpperCase()),(this.searchCode.toUpperCase() + "\uf8ff"));
                 docRef.forEach(() => {
                         app.customer = []
                         docRef.forEach(function (doc) {
@@ -845,7 +860,7 @@ export default {
             this.prod.percent = 0
             this.prod.shockprice = 0
             const db = getFirestore()
-            const docRef = await getDocs(collection(db, "customer"),("code", "==", this.code));
+            const docRef = await getDocs(collection(db, "customer"), where("code", "==", this.code));
                 docRef.forEach(() => {
                     docRef.forEach(doc => {
                         this.prod.gp = doc.data().gp
@@ -865,7 +880,7 @@ export default {
             }
             else {
                 const db = getFirestore()
-                const docRef = await getDocs(collection(db, "code"), ("productcode"),("proCode"),("Code"),
+                const docRef = await getDocs(collection(db, "code"), where("productcode"),("proCode"),("Code"),
                    (this.prod.Code),(this.prod.Code + "\uf8ff"));
                        docRef.forEach(() => {
                         docRef.forEach(doc => {

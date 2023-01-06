@@ -9,11 +9,12 @@
         <mainMenu></mainMenu>
         <v-container>
             <v-btn @click="addData()">Click</v-btn>
+
         </v-container>
     </v-app>
 </template>
 <script>
-import { collection, addDoc, getFirestore, getDocs } from "firebase/firestore";
+import { collection, query, where, getFirestore, getDocs } from "firebase/firestore";
 // import { getFirestore, collection, getDocs } from 'firebase/firestore'
 // import { db, fieldValue } from '@/firebase'
 import mainMenu from '@/components/mainMenu.vue'
@@ -74,20 +75,26 @@ export default {
     //    }
         async addData() {
             // let app = this
-            let year = new Date().toISOString().substr(0, 4)
-            let subYear = new Date().toISOString().substr(2, 2)
+            // let year = new Date().toISOString().substr(0, 4)
+            // let subYear = new Date().toISOString().substr(2, 2)
+            // const db = getFirestore()
+            // const docRef = await getDocs(collection(db, "customer"),("2023", "==", year));
+            // docRef.forEach((doc) => {
+            //         let typeDoc = doc.data()[this.orderType] + 1
+            //         if (typeDoc <= 9999) {
+            //             typeDoc = ("000" + typeDoc).slice(-4)
+            //         }
+            //         this.orderNo = subYear + typeDoc
+            //         console.log(this.orderNo)
+            //     });
             const db = getFirestore()
-            // const q = query(collection(db, "cities"), where("capital", "==", true));
-            const docRef = await getDocs(collection(db, "counter"),("2023", "==", year));
+            const docRef = await getDocs(collection(db, 'customer'), where('name', '==', 'address'));
             docRef.forEach((doc) => {
-                    let typeDoc = doc.data()[this.orderType] + 1
-                    if (typeDoc <= 9999) {
-                        typeDoc = ("000" + typeDoc).slice(-4)
-                    }
-                    this.orderNo = subYear + typeDoc
-                    // this.$refs.searchName.focus()
-                    console.log(this.orderNo)
+                    let name = doc.data()
+                console.log(name)
+                alert(name)
                 });
+         
         }
     }
 }
