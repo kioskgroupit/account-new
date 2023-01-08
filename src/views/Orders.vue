@@ -69,31 +69,23 @@
                         <!-- Show customer info from the search in database -->
                         <v-dialog v-model="dialogCust" max-width="1280px">
                             <v-data-table :headers="headers" :items="customer" class="elevation-1">
-                                <template v-slot:items="props">
-                                    <td class="text-xs-center">{{props.item.code}}</td>
-                                    <td>{{props.item.name}}</td>
-                                    <td>{{props.item.address}}</td>
-                                    <td>{{props.item.contact}}</td>
-                                    <td class="text-xs-left">{{props.item.tel}}</td>
-                                    <td hidden class="text-xs-left">{{props.item.gp}}</td>
-                                    <td hidden class="text-xs-left">{{props.item.dc}}</td>
-                                    <td class="justify-center layout px-0">
-                                        <v-tooltip left>
-                                                <v-menu offset-y>
+                                        <template v-slot:item="props">
+                                            <td class="text-center">{{props.item.code}}</td>
+                                            <td class="text-center">{{props.item.name}}</td>
+                                            <td class="text-center">{{props.item.address}}</td>
+                                            <td class="text-center">{{props.item.contact}}</td>
+                                            <td class="text-center">{{props.item.tel}}</td>
+                                            <td class="text-center">
+                                                <v-tooltip left>
                                                     <template v-slot:activator="{ on, attrs }">
-                                                        <v-icon v-bind="attrs" v-on="on">
+                                                        <v-icon @click="searchItem(props.item)" color="primary" dark v-bind="attrs" v-on="on">
                                                             mdi-check-circle
                                                         </v-icon>
                                                     </template>
-                                                </v-menu>
-                                            <!-- <template v-slot:activator="{ on }">
-                                                <v-icon class="mr-1" @click="searchItem(props.item)"
-                                                    v-on="on">mdi-check-circle</v-icon>
-                                            </template> -->
-                                            <span>Choose this customer</span>
-                                        </v-tooltip>
-                                    </td>
-                                </template>
+                                                    <span>Choose this customer</span>
+                                                </v-tooltip>
+                                            </td>
+                                 </template>
                             </v-data-table>
                         </v-dialog>
 
@@ -144,8 +136,7 @@
                             <v-flex xs6 sm4 md3>
                                 <v-tooltip right>
                                     <template v-slot:activator="{ on }">
-                                        <v-btn fab small color="primary" @click="openDetail()" v-on="on"><v-icon
-                                                dark>mdi-plus</v-icon></v-btn>
+                                        <v-btn fab small color="primary" @click="openDetail()" v-on="on"><v-icon dark>mdi-plus</v-icon></v-btn>
                                     </template>
                                     <span>Add products</span>
                                 </v-tooltip>
@@ -603,7 +594,7 @@ export default {
 
 
             headers: [
-                { text: 'Customer code', align: 'center', value: 'code' },
+                { text: 'Customer code', sortable: false, align: 'center', value: 'code'},
                 { text: 'Customer name', sortable: false, align: 'center', value: 'name' },
                 { text: 'Address', sortable: false, align: 'center', value: 'address' },
                 { text: 'Contact name', sortable: false, align: 'center', value: 'contact' },
@@ -996,7 +987,7 @@ export default {
                 let year = new Date().toISOString().substr(0, 4)
                 const db = getFirestore()
                 let DocRef = db.collection("counter")(year)
-                const docRef = await getDocs(collection(db, "order"),("orderNo", "==", this.orderType.substr(2) + this.orderNo));
+                const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.orderType.substr(2) + this.orderNo));
                 docRef.forEach(() => {
                         app.checkOrder = []
                         docRef.forEach(doc => {
@@ -1109,7 +1100,7 @@ export default {
         async test() {
             let app = this
             const db = getFirestore()
-            const docRef = await getDocs (collection(db, "order"),("orderNo", "==", "F190035"));
+            const docRef = await getDocs (collection(db, "order"), where("orderNo", "==", "F190035"));
                 // db.collection("order").where("orderNo", "==", this.orderType.substr(2)+this.orderNo).get()
                  docRef.forEach(() => {
                     app.checkOrder = []
@@ -1222,7 +1213,7 @@ export default {
         this.$refs.searchName.focus()
         let app = this
         const db = getFirestore()
-        const docRef = await getDocs(collection(db, "chartAccount"),("cash", "==", "Y"));
+        const docRef = await getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
             docRef.forEach((payment) => {
                 app.itemPayMent = []
                 payment.forEach(doc => {
