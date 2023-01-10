@@ -4,7 +4,7 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Sales Order</h1>
+                    <h1 class="pt-2 pb-1">Sales Order</h1>
                     <hr>
                     <div>
                         <v-layout>
@@ -281,8 +281,8 @@
                                     </v-container>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn flat color="red darken-1" @click="cancelAddProd">Cancel</v-btn>
-                                        <v-btn flat color="blue darken-1" @click="addProd">Add</v-btn>
+                                        <v-btn color="red darken-1" @click="cancelAddProd">Cancel</v-btn>
+                                        <v-btn color="blue darken-1" @click="addProd">Add</v-btn>
                                     </v-card-actions>
                                 </v-card-text>
                             </v-card>
@@ -510,7 +510,7 @@
 </template>
 <script>
 
-import { collection, getDocs, where, getFirestore } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, setDoc, getDocFromServer, query, orderBy, doc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -871,12 +871,12 @@ export default {
             }
             else {
                 const db = getFirestore()
-                const docRef = await getDocs(collection(db, "code"), where("productcode"),("proCode"),("Code"),
-                   (this.prod.Code),(this.prod.Code + "\uf8ff"));
-                       docRef.forEach(() => {
-                        docRef.forEach(doc => {
-                            app.listProduct.push(doc.data())
-                        })
+                const docRef = collection(db, "code")
+                const q = await doc(docRef, "productcode", where("Code", "==", "this.prod.Code"));
+                const querySnapshot = await getDocs(q)
+                 querySnapshot.forEach((doc) => {
+                    app.listProduct.push(doc.data())
+                    console.log(app.listProduct)
                         if (app.listProduct.length == 0) {
                             app.showSearchProCode = false
                             alert("This product code is not in the system......")
@@ -1214,17 +1214,21 @@ export default {
         let app = this
         const db = getFirestore()
         const docRef = await getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
-            docRef.forEach((payment) => {
+            docRef.forEach(doc => {
                 app.itemPayMent = []
-                payment.forEach(doc => {
                     let readDoc = doc.data().accName
                     app.itemPayMent.push(readDoc)
-                })
+                // payment.forEach(doc => {
+                //     let readDoc = doc.data().accName
+                //     app.itemPayMent.push(readDoc)
+                // })
             })
        getDocs(collection(db, "code"),("color"));
-            docRef.forEach((color) => {
-                app.itemFrame.push(color.data().frame.sort())
-                app.itemFront.push(color.data().front.sort())
+       docRef.forEach((color) => {
+        //    app.itemFrame.push(color.data().frame.sort())
+        //    app.itemFront.push(color.data().front.sort())
+                app.itemFrame.push(color.data().frame)
+                app.itemFront.push(color.data().front)
             })
     }
 }
