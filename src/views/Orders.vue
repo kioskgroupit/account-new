@@ -487,11 +487,11 @@
                         <!-- save, cancel and print button -->
                         <v-layout align-center column>
                             <v-flex>
-                                <v-btn @click="addOrder()">
+                                <v-btn class="mr-2" @click="addOrder()">
                                     <v-icon dark>mdi-content-save</v-icon>
                                     Save
                                 </v-btn>
-                                <v-btn @click="clearOrder()">
+                                <v-btn class="ml-2" @click="clearOrder()">
                                     <v-icon dark>mdi-close</v-icon>
                                     Cancel
                                 </v-btn>

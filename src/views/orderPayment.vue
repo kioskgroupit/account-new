@@ -8,10 +8,10 @@
                     <hr>
                     <!-- Search order -->
                     <v-layout justify-center>
-                        <v-flex xs12 d-flex justify-end pa-2 my-4>
+                        <v-flex xs2 d-flex justify-end my-4>
                             <h3>Select order no:</h3>
                         </v-flex>
-                        <v-flex xs4 pa-1 px-2>
+                        <v-flex xs3 pa-1 px-2>
                             <v-select :items="itemOrder" v-model="searchOrder"></v-select>
                         </v-flex>
                         <v-flex xs2 my-2>
@@ -283,11 +283,11 @@
                             <!-- save and cancel button -->
                             <v-layout align-center column>
                                 <v-flex>
-                                    <v-btn @click="addPayment()" :disabled="this.balance == 0">
+                                    <v-btn @click="addPayment()" :disabled="this.balance == 0" class="mr-2">
                                         <v-icon dark>mdi-content-save</v-icon>
                                         Save
                                     </v-btn>
-                                    <v-btn @click="clearOrder()">
+                                    <v-btn @click="clearOrder()" class="ml-2">
                                         <v-icon dark>mdi-close</v-icon>
                                         Cancel
                                     </v-btn>
@@ -368,18 +368,15 @@ export default {
             this.countPayment = []
             const db = getFirestore()
             const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.searchOrder));
-            docRef.forEach(querySnapshot=> {
-                // console.log(querySnapshot)
-                if (querySnapshot.empty) {
+            docRef.forEach(docs=> {
+                if (docs.empty) {
                     alert("Order No is not correct...\nPlease Try again")
                     // this.$refs.orderNo.focus()
                 } else {
                     this.showDetails = true
-                    // let doc = querySnapshot.docs[0].data()
+                    let doc = docs.data()
                     // let docId = querySnapshot.docs[0].id
-
-                    // this.orderId = docId
-                    console.log(this.orderNo)
+                    // this.orderId = docId     
                     this.orderNo = doc.orderNo
                     // this.orderDate = doc.orderDate.substr(0, 10)
                     this.orderDate = doc.orderDate
