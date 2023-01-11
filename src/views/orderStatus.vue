@@ -8,7 +8,7 @@
                     <v-layout>
                         <v-flex xs2>
                             <v-menu v-model="menuMonth" :close-on-content-click="false" :nudge-right="40"
-                                transition="scale-transition" offset-y full-width min-width="290px">
+                                transition="scale-transition" offset-y min-width="290px">
                                 <template v-slot:activator="{ on }">
                                     <v-text-field v-model="searchMonth" label="Select Month:" prepend-icon="mdi-calendar"
                                         v-on="on"></v-text-field>
@@ -39,7 +39,7 @@
                     <div>
                         <!-- Order status -->
                         <v-data-table :headers="headers" :items="detail" class="elevation-1"
-                            v-bind:pagination.sync="pagination" :items-per-page-options="rowsPerPageItems">
+                            v-bind:options.sync="options" :items-per-page-options="rowsPerPageItems">
                             <template v-slot:no-data>
                                 <v-progress-linear v-slot:progress color="primary" indeterminate></v-progress-linear>
                             </template>
@@ -374,7 +374,7 @@
 </template>
 
 <script>
-import { collection, getDocs, where, getFirestore, setDoc, getDocFromServer, addDoc, orderBy, doc } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, setDoc, getDocFromServer, addDoc, orderBy, startAt, endAt } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -406,7 +406,8 @@ export default {
                 { text: '', sortable: false, align: 'left' },
             ],
             rowsPerPageItems: [50, 100, 200, 500],
-            pagination: { 'sortBy': 'orderDate', 'descending': true },
+            // options: { 'sortBy': 'orderDate', 'descending': true },
+            options: { 'descending': true },
 
             showViewOrder: false,
             orderNo: '',

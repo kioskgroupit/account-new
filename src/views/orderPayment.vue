@@ -49,7 +49,7 @@
                                         <!-- <v-text-field v-model="item.date" color="white" label="Date:" prepend-icon="event"
                                         dark :disabled="item.payMent != '' && item.down != 0 && item.date.length == 10"></v-text-field> -->
                                         <v-menu v-model="item.menuPayDateOrder" :close-on-content-click="false"
-                                            :nudge-right="40" lazy transition="scale-transition" offset-y full-width
+                                            :nudge-right="40" transition="scale-transition" offset-y
                                             min-width="290px">
                                             <template v-slot:activator="{ on }">
                                                 <v-text-field v-model="item.date" color="white" label="Date:"
@@ -68,7 +68,9 @@
                         <div>
                             <form>
                                 <v-layout>
-                                    <v-flex xs11 text-xs-right my-4>Order no:</v-flex>
+                                <v-flex xs12 d-flex justify-end pa-2 my-4>
+                                    <h3>Order no:</h3>
+                                </v-flex>
                                     <v-flex xs1 pa-1 pl-2 text-xs-right>
                                         <v-text-field v-model="orderNo" readonly></v-text-field>
                                     </v-flex>
@@ -79,10 +81,10 @@
                                 <v-layout>
                                     <v-flex offset-xs10>
                                         <v-menu v-model="menuorderDate" :close-on-content-click="false"
-                                            :nudge-right="40" lazy transition="scale-transition" offset-y full-width
+                                            :nudge-right="40" transition="scale-transition" offset-y
                                             min-width="290px" readonly>
                                             <template v-slot:activator="{ on }">
-                                                <v-text-field v-model="orderDate" label="Date:" prepend-icon="event"
+                                                <v-text-field v-model="orderDate" label="Date:" prepend-icon="mdi-calendar"
                                                     readonly></v-text-field>
                                             </template>
                                             <v-date-picker v-model="orderDate" @input="menuorderDate = false"
@@ -216,11 +218,11 @@
                                                 </v-flex>
                                                 <v-flex xs5>
                                                     <v-menu v-model="menushipDate" :close-on-content-click="false"
-                                                        :nudge-right="40" lazy transition="scale-transition" offset-y
-                                                        full-width min-width="290px" readonly>
+                                                        :nudge-right="40" transition="scale-transition" offset-y
+                                                         min-width="290px" readonly>
                                                         <template v-slot:activator="{ on }">
                                                             <v-text-field v-model="shipDate" label="Date:"
-                                                                prepend-icon="event" readonly></v-text-field>
+                                                                prepend-icon="mdi-calendar" readonly></v-text-field>
                                                         </template>
                                                         <v-date-picker v-model="shipDate" @input="menushipDate = false"
                                                             :min="nowDate" readonly></v-date-picker>
@@ -244,8 +246,8 @@
                                             </v-flex>
                                             <v-flex xs3 class="sum">
                                                 <font size=3>
-                                                    <vue-numeric separator="," :precision="2" disabled :value="sumTotal"
-                                                        class="line"></vue-numeric>
+                                                    <!-- <vue-numeric separator="," :precision="2" disabled :value="sumTotal"
+                                                        class="line"></vue-numeric> -->
                                                 </font>
                                             </v-flex>
                                         </v-layout>
@@ -266,8 +268,8 @@
                                             </v-flex>
                                             <v-flex xs3 class="sum">
                                                 <font size=3>
-                                                    <vue-numeric separator="," :precision="2" disabled :value="sumNet"
-                                                        class="line"></vue-numeric>
+                                                    <!-- <vue-numeric separator="," :precision="2" disabled :value="sumNet"
+                                                        class="line"></vue-numeric> -->
                                                 </font>
                                             </v-flex>
                                         </v-layout>
@@ -282,11 +284,11 @@
                             <v-layout align-center column>
                                 <v-flex>
                                     <v-btn @click="addPayment()" :disabled="this.balance == 0">
-                                        <v-icon dark>save</v-icon>
+                                        <v-icon dark>mdi-content-save</v-icon>
                                         Save
                                     </v-btn>
                                     <v-btn @click="clearOrder()">
-                                        <v-icon dark>clear</v-icon>
+                                        <v-icon dark>mdi-close</v-icon>
                                         Cancel
                                     </v-btn>
                                 </v-flex>
@@ -301,7 +303,7 @@
 
 <script>
 
-import { collection, getDocs, where, getFirestore, setDoc, getDocFromServer, query, orderBy, doc } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, setDoc, getDocFromServer, query, orderBy, doc, QuerySnapshot } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -312,7 +314,8 @@ export default {
     },
     data() {
         return {
-            subTime: new Date().toTimeString().substr(0, 8),
+            // subTime: new Date().toTimeString().substr(0, 8),
+            subTime: new Date().toTimeString(),
             orderId: '',
             menuorderDate: false,
             menushipDate: false,
@@ -340,7 +343,8 @@ export default {
             countPayment: [],
 
             shipAdd: '',
-            shipDate: new Date().toISOString().substr(0, 10),
+            // shipDate: new Date().toISOString().substr(0, 10),
+            shipDate: new Date().toISOString(),
             payMent: '',
             remark: '',
 
@@ -363,20 +367,22 @@ export default {
         async searchOrderNo() {
             this.countPayment = []
             const db = getFirestore()
-            const docRef = await getDocs(collection(db, "order").where("orderNo", "==", this.searchOrder.substr(0, 7)));
-            docRef.forEach(querySnapshot => {
+            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.searchOrder));
+            docRef.forEach(querySnapshot=> {
                 // console.log(querySnapshot)
                 if (querySnapshot.empty) {
                     alert("Order No is not correct...\nPlease Try again")
                     // this.$refs.orderNo.focus()
                 } else {
                     this.showDetails = true
-                    let doc = querySnapshot.docs[0].data()
-                    let docId = querySnapshot.docs[0].id
+                    // let doc = querySnapshot.docs[0].data()
+                    // let docId = querySnapshot.docs[0].id
 
-                    this.orderId = docId
+                    // this.orderId = docId
+                    console.log(this.orderNo)
                     this.orderNo = doc.orderNo
-                    this.orderDate = doc.orderDate.substr(0, 10)
+                    // this.orderDate = doc.orderDate.substr(0, 10)
+                    this.orderDate = doc.orderDate
                     this.code = doc.code
                     this.name = doc.name
                     this.address = doc.address
@@ -392,11 +398,11 @@ export default {
                     this.disc = doc.disc
                     this.downBalance = doc.downBalance
                     this.balance = doc.balance
-                    this.countPayment.push({ payMent: '', down: 0, date: '' })
+                    // this.countPayment.push({ payMent: '', down: 0, date: '' })
                 }
             })
-             docRef = await getDocs(collection(db, "chartAccount").where("cash", "==", "Y"));
-             docRef.forEach(() => {
+             const docRe = await getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
+             docRe.forEach(() => {
                 this.itemPayMent = []
                 docRef.forEach(doc => {
                     let readDoc = doc.data().accName
@@ -512,13 +518,13 @@ export default {
     computed: {
 
         // Calculate total
-        sumTotal() {
-            return this.orderDetails.reduce((total, item) => total + (item.num * item.PriceMM), 0)
-        },
+        // sumTotal() {
+        //     return this.orderDetails.reduce((total, item) => total + (item.num * item.PriceMM), 0)
+        // },
 
-        sumNet() {
-            return this.sumTotal - this.disc
-        },
+        // sumNet() {
+        //     return this.sumTotal - this.disc
+        // },
 
         // Calculate balance
         // balance(){
