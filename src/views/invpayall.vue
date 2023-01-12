@@ -10,15 +10,15 @@
 
                     <!-- Search customer -->
                     <v-layout justify-center>
-                        <v-flex xs2 text-xs-right my-4>
+                        <v-flex xs2 d-flex justify-end my-4>
                             <h3>Select customer code:</h3>
                         </v-flex>
-                        <v-flex xs6 pa-1 px-2>
+                        <v-flex xs3 pa-1 px-2>
                             <v-select :items="itemCust" v-model="custCode"></v-select>
                         </v-flex>
                         <v-flex xs2 my-2>
-                            <v-btn @click="searchInv">
-                                <v-icon>search</v-icon>
+                            <v-btn fab small color="indigo lighten-1" dark @click="searchInv">
+                                <v-icon>mdi-magnify</v-icon>
                             </v-btn>
                         </v-flex>
                     </v-layout>
@@ -123,7 +123,7 @@
     </v-app>
 </template>
 <script>
-import { db } from '@/firebase'
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 export default {
@@ -167,36 +167,33 @@ export default {
         },
 
         // Search info from customer in invoice database
-        searchInv() {
+        async searchInv() {
             let custCodeAndName = this.custCode.split(":")
             let custCode = custCodeAndName[0].split(" ")
             let custName = custCodeAndName[1].substr(1)
-            db.collection("invoice").where("code", "==", custCode[0]).where("name", "==", custName)
-                // .where("payMentStatus", "==", "Not paid yet").get()
-                .where("balance", ">", 0).get()
-                .then(snapshot => {
-                    this.showProgress = true
-                    this.InvDetail = []
-                    let i = 0
-                    snapshot.forEach(doc => {
-                        // this.invId.push(doc.data().id)
-
-                        this.invNo = doc.data().invNo
-                        this.invDate = doc.data().invDate.substr(0, 10)
-                        if (doc.data().desc == "Credit note") {
-                            this.balance = - doc.data().balance
-                        }
-                        else {
-                            this.balance = doc.data().balance
-                        }
-                        this.InvDetail.push({ id: snapshot.docs[i].id, invNo: this.invNo, invDate: this.invDate, balance: this.balance })
-                        i++
-                    })
-                    this.showInvDetail = true
-                    db.collection("chartAccount").where("cash", "==", "Y").get()
-                        .then(payment => {
+            const db = getFirestore()
+            const docRef = await getDocs(collection(db, "invoice"), where("code", "==", custCode[0]), where("name", "==", custName), where("balance", ">", 0));
+               docRef.forEach(()=> {
+                this.showProgress = true
+                this.InvDetail = []
+                  let i = 0
+                  docRef.forEach(doc=> {
+                    this.invNo = doc.data().invNo
+                    this.invDate = doc.data().invDate.substr(0, 10)
+                    if (doc.data().desc == "Credit note") {
+                        this.balance = - doc.data().balance
+                    }
+                    else {
+                        this.balance = doc.data().balance
+                    }
+                    this.InvDetail.push({ id: doc.docs[i].id, invNo: this.invNo, invDate: this.invDate, balance: this.balance })
+                    i++
+                })
+                this.showInvDetail = true
+                const docRef = getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
+                        docRef.forEach(() => {
                             this.itemPayMent = []
-                            payment.forEach(doc => {
+                            docRef.forEach(doc => {
                                 let readDoc = doc.data().accName
                                 this.itemPayMent.push(readDoc)
                             })
@@ -298,23 +295,34 @@ export default {
             return this.sumBalance - this.amtRecei
         }
     },
-    mounted() {
-        // Show order info in the select order no box
-        // db.collection("order").where("status", "==", "Open")
-        db.collection("invoice").where("balance", ">", 0)
-            // .where("status", "==", "Open")
-            // .where("status", "==", "Closed")
-            // .where("amtRecei", "==", 0)
-            .onSnapshot(querySnapshot => {
-                this.itemCust = []
-                querySnapshot.forEach(doc => {
-                    let codeDoc = doc.data().code
-                    let nameDoc = doc.data().name
-                    this.itemCust.push(codeDoc + " " + ":" + " " + nameDoc)
-                })
-                this.itemCust.sort()
+    async mounted() {
+      // Show order info in the select order no box
+        const db = getFirestore()
+        const docRef = await getDocs(collection(db, "invoice"), where("balance", ">", 0));
+        docRef.forEach(() => {
+            this.itemCust = []
+            docRef.forEach(doc => {
+                let codeDoc = doc.data().code
+                let nameDoc = doc.data().name
+                this.itemCust.push(codeDoc + " " + ":" + " " + nameDoc)
             })
+            this.itemCust.sort()
+        })
     }
+    // async mounted() {
+    //     // Show order info in the select order no box
+    //     const db = getFirestore()
+    //     const docRef = await getDocs(collection(db, "invoice"), where("balance", ">", 0));
+    //         docRef.forEach(() => {
+    //             this.itemCust = []
+    //             docRef.forEach(doc => {
+    //                 let codeDoc = doc.data().code
+    //                 let nameDoc = doc.data().name
+    //                 this.itemCust.push(codeDoc + " " + ":" + " " + nameDoc)
+    //             })
+    //             this.itemCust.sort()
+    //         })
+    // }
 }
 </script>
 <style scoped>

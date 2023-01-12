@@ -510,7 +510,7 @@
 </template>
 <script>
 
-import { collection, getDocs, where, getFirestore, setDoc, getDocFromServer, query, orderBy, doc } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, query, orderBy, doc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 

@@ -4,22 +4,21 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Invoice Payment</h1>
-                    <!-- <v-btn @click="test"></v-btn> -->
+                    <h1 class="pt-2 pb-1">Invoice Payment</h1>
                     <hr>
                     <div>
 
                         <!-- Search invoice -->
                         <v-layout justify-center>
-                            <v-flex xs2 text-xs-right my-4>
+                            <v-flex xs2 d-flex justify-end my-4>
                                 <h3>Select Invoice no:</h3>
                             </v-flex>
-                            <v-flex xs4 pa-1 px-2>
+                            <v-flex xs3 pa-1 px-2>
                                 <v-select :items="itemInv" v-model="searchInv"></v-select>
                             </v-flex>
                             <v-flex xs2 my-2>
-                                <v-btn @click="searchInvoice()">
-                                    <v-icon>search</v-icon>
+                                <v-btn fab small color="indigo lighten-1" dark @click="searchInvoice()">
+                                    <v-icon>mdi-magnify</v-icon>
                                 </v-btn>
                             </v-flex>
                         </v-layout>
@@ -52,7 +51,7 @@
                                             <!-- <v-text-field v-model="item.date" color="white" label="Date:" prepend-icon="event"
                                             dark :disabled="item.payMent != '' && item.down != 0 && item.date.length == 10"></v-text-field> -->
                                             <v-menu v-model="item.menuPayDateInv" :close-on-content-click="false"
-                                                :nudge-right="40" lazy transition="scale-transition" offset-y full-width
+                                                :nudge-right="40" transition="scale-transition" offset-y
                                                 min-width="290px">
                                                 <template v-slot:activator="{ on }">
                                                     <v-text-field v-model="item.date" color="white" label="Date:"
@@ -72,7 +71,7 @@
 
                                 <!-- Show Inv no -->
                                 <v-layout>
-                                    <v-flex xs11 text-xs-right my-4>
+                                <v-flex xs12 d-flex justify-end pa-2 my-4>
                                         <h3>Inv no:</h3>
                                     </v-flex>
                                     <v-flex xs1 pa-1 pl-2 text-xs-right>
@@ -85,7 +84,7 @@
                                 <v-layout>
                                     <v-flex offset-xs10>
                                         <v-menu v-model="onMenuInvDate" :close-on-content-click="false"
-                                            :nudge-right="40" lazy transition="scale-transition" offset-y full-width
+                                            :nudge-right="40" transition="scale-transition" offset-y
                                             min-width="290px" readonly>
                                             <template>
                                                 <v-text-field v-model="invDate" label="Date:" prepend-icon="event"
@@ -276,12 +275,12 @@
                             <!-- save and cancel button -->
                             <v-layout align-center column>
                                 <v-flex>
-                                    <v-btn @click="addEditPayment()" :disabled="this.balance == 0">
-                                        <v-icon dark>save</v-icon>
+                                    <v-btn class="mr-2" @click="addEditPayment()"  :disabled="this.balance == 0">
+                                        <v-icon dark>mdi-content-save</v-icon>
                                         Save
                                     </v-btn>
-                                    <v-btn @click="clearInv()">
-                                        <v-icon dark>clear</v-icon>
+                                    <v-btn class="ml-2" @click="clearInv()">
+                                        <v-icon dark>mdi-close</v-icon>
                                         Cancel
                                     </v-btn>
                                 </v-flex>
@@ -295,7 +294,7 @@
 </template>
 
 <script>
-import { db } from '@/firebase'
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -307,7 +306,7 @@ export default {
 
     data() {
         return {
-            subTime: new Date().toTimeString().substr(0, 8),
+            subTime: new Date().toTimeString(),
             itemInv: [],
             invId: '',
             orderNo: '',
@@ -323,7 +322,7 @@ export default {
             amtRecei: 0,
 
             invNo: '',
-            invDate: new Date().toISOString().substr(0, 10),
+            invDate: new Date().toISOString(),
 
             code: '',
             name: '',
@@ -351,57 +350,53 @@ export default {
     methods: {
 
         // Search invoice from database
-        searchInvoice() {
-            db.collection("invoice").where("invNo", "==", this.searchInv.substr(0, 7)).get()
-                .then(querySnapshot => {
-                    // console.log(querySnapshot)
-                    if (querySnapshot.empty) {
-                        alert("Invoice no is not correct...\nPlease Try again")
-                        // this.$refs.invoiceNo.focus()
-                    }
-                    else {
-                        this.showDetails = true
-                        let doc = querySnapshot.docs[0].data()
-                        let docId = querySnapshot.docs[0].id
+        async searchInvoice() {
+            const db = getFirestore()
+            const docRef = await getDocs(collection(db, "invoice"), where("invNo", "==", this.searchInv));
+            docRef.forEach(docs => {
+                // console.log(querySnapshot)
+                if (docs.empty) {
+                    alert("Invoice no is not correct...\nPlease Try again")
+                    // this.$refs.invoiceNo.focus()
+                }
+                else {
+                    this.showDetails = true
+                    let doc = docs.data()
+                    let docId = docs.id
 
-                        this.invId = docId
-                        this.orderNo = doc.orderNo
-                        this.invNo = doc.invNo
-                        this.invDate = doc.invDate.substr(0, 10)
-                        this.code = doc.code
-                        this.name = doc.name
-                        this.address = doc.address
-                        this.poRef = doc.poRef
-                        this.contact = doc.contact
-                        this.tel = doc.tel
-                        this.detail = doc.detail
-                        this.disc = doc.disc
-                        this.down = doc.down
-                        this.balance = doc.balance
-                        this.down = doc.down
-                        this.countPayment = doc.countPayment
-                        this.countPayment.forEach(rec => {
-                            rec.date = rec.date.substr(0, 10)
-                        })
-                        this.countPayment.push({ payMent: '', down: 0, date: '' })
-                        // this.amtRecei = doc.amtRecei
+                    this.invId = docId
+                    this.orderNo = doc.orderNo
+                    this.invNo = doc.invNo
+                    this.invDate = doc.invDate
+                    this.code = doc.code
+                    this.name = doc.name
+                    this.address = doc.address
+                    this.poRef = doc.poRef
+                    this.contact = doc.contact
+                    this.tel = doc.tel
+                    this.detail = doc.detail
+                    this.disc = doc.disc
+                    this.down = doc.down
+                    this.balance = doc.balance
+                    this.down = doc.down
+                    this.countPayment = doc.countPayment
+                    // this.countPayment.forEach(rec => {
+                    //     rec.date = rec.date()
+                    // })
+                    // this.countPayment.push({ payMent: '', down: 0, date: '' })
 
-                        db.collection("order").where("orderNo", "==", this.orderNo).get()
-                            .then(snapshotOrder => {
-                                let docIdOrder = snapshotOrder.docs[0].id
-                                this.idOrder = docIdOrder
-                                this.balanceOrder = doc.balance
-                                // db.collection("cashReceiBook").where("refNo", "==", this.searchInv.substr(0,7)).get()
-                                // .then(snapshotCashbook=> {
-                                //     let docIdCashbook = snapshotCashbook.docs[0].id
-                                //     this.idCashbook = docIdCashbook
-                                // })
-                            })
-                    }
-                    db.collection("chartAccount").where("cash", "==", "Y").get()
-                        .then(payment => {
+
+                    const docRef = getDocs(collection(db, "order"), where("orderNo", "==", this.orderNo));
+                    docRef.forEach(snapshotOrder => {
+                        let docIdOrder = snapshotOrder.docs[0].id
+                        this.idOrder = docIdOrder
+                        this.balanceOrder = doc.balance
+                    })
+                }
+                const docRef = getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
+                        docRef.forEach(() => {
                             this.itemPayMent = []
-                            payment.forEach(doc => {
+                            docRef.forEach(doc => {
                                 let readDoc = doc.data().accName
                                 this.itemPayMent.push(readDoc)
                             })
@@ -473,7 +468,7 @@ export default {
         // Clear webpage
         clearInv() {
             this.invNo = ''
-            this.invDate = new Date().toISOString().substr(0, 10)
+            this.invDate = new Date().toISOString()
             this.code = ''
             this.name = ''
             this.address = ''
@@ -490,24 +485,24 @@ export default {
     },
     computed: {
 
-        // 
-        sumTotal() {
-            return this.detail.reduce((total, item) => total + (item.num * item.PriceMM), 0)
-        },
+    
+        // sumTotal() {
+        //     return this.detail.reduce((total, item) => total + (item.num * item.PriceMM), 0)
+        // },
 
-        // Calculate balance
-        sumBalance() {
-            return this.balance - this.amtRecei
-        }
+        
+        // sumBalance() {
+        //     return this.balance - this.amtRecei
+        // }
     },
-    mounted() {
+    async mounted() {
         let app = this
-
         // Pull the invoice information to show if there is no payment
-        db.collection("invoice").where("status", "==", "Open").where("balance", ">", 0)
-            .onSnapshot(querySnapshot => {
+        const db = getFirestore()
+        const docRef = await getDocs(collection(db, "invoice"), where("status", "==", "Open"), where ("balance", ">", 0));
+            docRef.forEach(() => {
                 app.itemInv = []
-                querySnapshot.forEach(doc => {
+                docRef.forEach(doc => {
                     let invDoc = doc.data().invNo
                     let nameDoc = doc.data().name
                     app.itemInv.push(invDoc + " " + ":" + " " + nameDoc)

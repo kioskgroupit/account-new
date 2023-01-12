@@ -322,7 +322,7 @@
 </template>
 
 <script>
-import { collection, getDocs, where, getFirestore, setDoc, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 

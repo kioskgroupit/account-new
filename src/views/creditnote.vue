@@ -4,23 +4,21 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Credit Note</h1>
-                    <!-- <v-btn @click="test"></v-btn> -->
+                    <h1 class="pt-2 pb-1">Credit Note</h1>
                     <hr>
                     <template>
 
                         <!-- Search invoice no -->
                         <v-layout justify-center>
-                            <v-flex xs2 text-xs-right my-4>
+                            <v-flex xs2 d-flex justify-end my-4>
                                 <h3>Invoice no:</h3>
                             </v-flex>
-                            <v-flex xs2 pa-1 px-2>
-                                <v-text-field v-model="searchInvNo" @keypress.enter="searchInvoice"
-                                    ref="searchInvNo"></v-text-field>
+                            <v-flex xs3 pa-1 px-2>
+                                <v-text-field v-model="searchInvNo" @keypress.enter="searchInvoice" ref="searchInvNo"></v-text-field>
                             </v-flex>
                             <v-flex xs2 my-2>
-                                <v-btn @click="searchInvoice">
-                                    <v-icon>search</v-icon>
+                                <v-btn fab small color="indigo lighten-1" dark @click="searchInvoice">
+                                    <v-icon>mdi-magnify</v-icon>
                                 </v-btn>
                             </v-flex>
                         </v-layout>
@@ -28,7 +26,7 @@
                         <template>
                             <!-- Credit no -->
                             <v-layout>
-                                <v-flex xs12 text-xs-right my-4>
+                                <v-flex xs12 d-flex justify-end pa-2 my-4>
                                     <h3>Credit no:</h3>
                                 </v-flex>
                                 <!-- <v-flex xs1 pa-1 pl-2 text-xs-right>
@@ -43,10 +41,10 @@
                             <!-- Date selector -->
                             <v-layout>
                                 <v-flex offset-xs10>
-                                    <v-menu v-model="menuDate" :close-on-content-click="false" :nudge-right="40" lazy
-                                        transition="scale-transition" offset-y full-width min-width="290px">
+                                    <v-menu v-model="menuDate" :close-on-content-click="false" :nudge-right="40"
+                                        transition="scale-transition" offset-y min-width="290px">
                                         <template v-slot:activator="{ on }">
-                                            <v-text-field v-model="cdDate" label="Date:" prepend-icon="event" readonly
+                                            <v-text-field v-model="cdDate" label="Date:" prepend-icon="mdi-calendar" readonly
                                                 v-on="on"></v-text-field>
                                         </template>
                                         <v-date-picker v-model="cdDate" @input="menuDate = false"></v-date-picker>
@@ -65,7 +63,7 @@
                                 </v-flex>
                                 <v-flex xs1 my-2>
                                     <v-btn fab small color="indigo lighten-1" dark @click="searchCustName()">
-                                        <v-icon>search</v-icon>
+                                        <v-icon>mdi-magnify</v-icon>
                                     </v-btn>
                                 </v-flex>
                             </v-layout>
@@ -81,7 +79,7 @@
                                 </v-flex>
                                 <v-flex xs1 my-2>
                                     <v-btn fab small color="indigo lighten-1" dark @click="searchCustCode(code)">
-                                        <v-icon>search</v-icon>
+                                        <v-icon>mdi-magnify</v-icon>
                                     </v-btn>
                                 </v-flex>
                             </v-layout>
@@ -415,8 +413,7 @@
                                             <v-layout>
                                                 <v-flex xs5>
                                                     <v-menu v-model="menushipDate" :close-on-content-click="false"
-                                                        :nudge-right="40" lazy transition="scale-transition" offset-y
-                                                        full-width min-width="290px">
+                                                        :nudge-right="40" transition="scale-transition" offset-y min-width="290px">
                                                         <template v-slot:activator="{ on }">
                                                             <v-text-field v-model="shipDate" label="Shipping Date:"
                                                                 prepend-icon="event" readonly v-on="on"></v-text-field>
@@ -534,7 +531,7 @@
     </v-app>
 </template>
 <script>
-import { db } from '@/firebase'
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 // import { setTimeout } from 'timers';
@@ -688,7 +685,7 @@ export default {
         },
 
         // Open return stock
-        saveCreditNote() {
+        async saveCreditNote() {
             let app = this
             app.detail = []
             let count = 0
@@ -717,22 +714,23 @@ export default {
 
                 // Old invoice
                 if (app.checkInv) {
-                    db.collection("invoice").where("cnNo", "==", app.cdNo).get()
-                        .then(queryInvoice => {
+                    const db = getFirestore()
+                    const docRef = await getDocs(collection(db, "invoice"), where("cnNo", "==", app.cdNo));
+                        docRef.forEach(queryInvoice => {
                             if (queryInvoice.docs[0]) {
                                 app.showLoading = false
                                 alert("Repeated credit note number\nPlease try again.")
                             }
                             else {
-                                db.collection("counter").doc(year).get()
-                                    .then(queryCount => {
+                                const docRef = getDocs(collection(db, "counter"), year);
+                                    docRef.forEach(queryCount => {
                                         let count = queryCount.data().cn + 1
-                                        db.collection("counter").doc(year).update({
+                                        addDoc(collection(db, "counter"), doc(year),{
                                             cn: count
                                         })
                                             .then(() => {
-                                                db.collection("counter").doc(year).get()
-                                                    .then(docIN => {
+                                                const docRef = getDocs(collection(db, "counter"), year);
+                                                    docRef.forEach(docIN => {
                                                         let countIN = docIN.data().in + 1
                                                         if (countIN <= 9999) {
                                                             countIN = ("000" + countIN).slice(-4)
@@ -744,7 +742,7 @@ export default {
                                                         })
                                                             .then(() => {
                                                                 let batch = db.batch()
-                                                                batch.set(db.collection("invoice").doc(), {
+                                                                batch.set(collection(db, "invoice"), doc(), {
                                                                     orderNo: app.orderNo,
                                                                     invNo: app.cdNo,
                                                                     invDate: app.cdDate + " " + app.subTime,
@@ -769,7 +767,7 @@ export default {
                                                                     printed: 0,
                                                                     statusType: '',
                                                                 })
-                                                                batch.set(db.collection("generalLedger").doc(), {
+                                                                batch.set(collection(db, "generalLedger"),doc(), {
                                                                     custCode: app.code,
                                                                     glNo: inNo,
                                                                     glDate: app.cdDate,
@@ -781,7 +779,7 @@ export default {
                                                                     credit: 0,
                                                                     remark: '',
                                                                 })
-                                                                batch.set(db.collection("generalLedger").doc(), {
+                                                                batch.set(collection(db, "generalLedger"), doc(), {
                                                                     custCode: app.code,
                                                                     glNo: inNo,
                                                                     glDate: app.cdDate,
@@ -799,10 +797,10 @@ export default {
                                                                         app.showLoading = false
                                                                     }, 1000)
                                                                 })
-                                                                    .catch(err => {
-                                                                        app.showLoading = false
-                                                                        alert(err + "\nUnable to save data.")
-                                                                    })
+                                                                    // .catch(err => {
+                                                                    //     app.showLoading = false
+                                                                    //     alert(err + "\nUnable to save data.")
+                                                                    // })
                                                             })
                                                     })
                                             })
@@ -813,22 +811,23 @@ export default {
 
                 // New invoice
                 else {
-                    db.collection("invoice").where("cnNo", "==", app.cdNo).get()
-                        .then(queryInvoice => {
+                    const db = getFirestore()
+                    const docRef = await getDocs(collection(db, "invoice"), where("cnNo", "==", app.cdNo));
+                        docRef.forEach(queryInvoice => {
                             if (queryInvoice.docs[0]) {
                                 app.showLoading = false
                                 alert("Repeated credit note number\nPlease try again.")
                             }
                             else {
-                                db.collection("counter").doc(year).get()
-                                    .then(queryCount => {
+                                const docRef = getDocs(collection(db, "counter"), year);
+                                    docRef.forEach(queryCount => {
                                         let count = queryCount.data().cn + 1
                                         db.collection("counter").doc(year).update({
                                             cn: count
                                         })
                                             .then(() => {
                                                 let batch = db.batch()
-                                                batch.set(db.collection("invoice").doc(), {
+                                                batch.set(collection(db, "invoice"), doc(), {
                                                     orderNo: app.orderNo,
                                                     invNo: app.cdNo,
                                                     invDate: app.cdDate + " " + app.subTime,
@@ -853,7 +852,7 @@ export default {
                                                     printed: 0,
                                                     statusType: '',
                                                 })
-                                                batch.set(db.collection("generalLedger").doc(), {
+                                                batch.set(collection(db, "generalLedger"), doc(), {
                                                     custCode: app.code,
                                                     glNo: '',
                                                     glDate: app.cdDate,
@@ -865,7 +864,7 @@ export default {
                                                     credit: 0,
                                                     remark: '',
                                                 })
-                                                batch.set(db.collection("generalLedger").doc(), {
+                                                batch.set(collection(db, "generalLedger"), doc(), {
                                                     custCode: app.code,
                                                     glNo: '',
                                                     glDate: app.cdDate,
@@ -883,10 +882,10 @@ export default {
                                                         app.showLoading = false
                                                     }, 1000)
                                                 })
-                                                    .catch(err => {
-                                                        app.showLoading = false
-                                                        alert(err + "\nUnable to save data.")
-                                                    })
+                                                    // .catch(err => {
+                                                    //     app.showLoading = false
+                                                    //     alert(err + "\nUnable to save data.")
+                                                    // })
                                             })
                                     })
                             }
@@ -1106,11 +1105,12 @@ export default {
         },
 
         // Credit no auto
-        getCreditNo() {
+        async getCreditNo() {
             let year = this.cdDate.substr(0, 4)
             let subYear = this.cdDate.substr(2, 2)
-            db.collection("counter").doc(year).get()
-                .then(doc => {
+            const db = getFirestore()
+            const docRef = await getDocs(collection(db, "counter"), year);
+                docRef.forEach(doc => {
                     let typeDoc = doc.data().cn + 1
                     if (typeDoc <= 9999) {
                         typeDoc = ("000" + typeDoc).slice(-4)
