@@ -6,8 +6,7 @@
                 <v-card-text>
                     <v-layout>
                         <v-flex>
-                            <h1>Return Products</h1>
-                            <!-- <v-btn @click="test"></v-btn> -->
+                            <h1 class="pt-2 pb-1">Retrun Products</h1>
                         </v-flex>
                     </v-layout>
                     <hr>
@@ -21,7 +20,7 @@
                             <v-menu v-model="menuDate" :close-on-content-click="false" :nudge-right="40" lazy
                                 transition="scale-transition" offset-y full-width min-width="290px">
                                 <template v-slot:activator="{ on }">
-                                    <v-text-field v-model="date" label="Date:" prepend-icon="event" v-on="on"
+                                    <v-text-field v-model="date" label="Date:" prepend-icon="mdi-calendar" v-on="on"
                                         readonly></v-text-field>
                                 </template>
                                 <v-date-picker v-model="date" @input="menuDate = false"></v-date-picker>
@@ -135,12 +134,12 @@
                     <!-- Button save and cancel -->
                     <v-layout align-center column>
                         <v-flex>
-                            <v-btn @click="openGL">
-                                <v-icon dark>save</v-icon>
+                            <v-btn class="mr-2" @click="openGL">
+                                <v-icon dark>mdi-content-save</v-icon>
                                 Save
                             </v-btn>
-                            <v-btn @click="cancelPage">
-                                <v-icon dark>clear</v-icon>
+                            <v-btn class="ml-2" @click="cancelPage">
+                                <v-icon dark>mdi-close</v-icon>
                                 Cancel
                             </v-btn>
                         </v-flex>
@@ -365,9 +364,9 @@
     </v-app>
 </template>
 <script>
-import { db } from '@/firebase'
-import mainMenu from '@/components/mainMenu.vue'
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
+import mainMenu from '@/components/mainMenu.vue'
 export default {
     components: {
         mainMenu,

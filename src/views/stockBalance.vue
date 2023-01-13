@@ -4,8 +4,7 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Stock Balance</h1>
-                    <!-- <v-btn @click="test"></v-btn> -->
+                    <h1 class="pt-2 pb-1">Stock Balance</h1>
                     <hr>
                     <v-layout>
                         <v-flex xs2>
@@ -33,7 +32,8 @@
     </v-app>
 </template>
 <script>
-import { db } from '@/firebase'
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
+// import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 export default {
     components: {

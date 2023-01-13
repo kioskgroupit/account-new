@@ -5,15 +5,15 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Stock Status</h1>
-                    <!-- <v-btn @click="test"></v-btn> -->
+                    <h1 class="pt-2 pb-1">Stock Status</h1>
+                  
                     <hr>
                     <v-layout>
                         <v-flex xs1 mr-2>
                             <v-menu v-model="menuMonth" :close-on-content-click="false" :nudge-right="40" lazy
                                 transition="scale-transition" offset-y full-width min-width="290px">
                                 <template v-slot:activator="{ on }">
-                                    <v-text-field v-model="searchMonth" label="Select Month:" prepend-icon="event"
+                                    <v-text-field v-model="searchMonth" label="Select Month:" prepend-icon="mdi-calendar"
                                         v-on="on"></v-text-field>
                                 </template>
                                 <v-date-picker v-model="searchMonth" @input="menuMonth = false" :max="nowDate"
@@ -28,7 +28,7 @@
                             <v-menu v-model="menuStartDate" :close-on-content-click="false" :nudge-right="40" lazy
                                 transition="scale-transition" offset-y full-width min-width="290px">
                                 <template v-slot:activator="{ on }">
-                                    <v-text-field v-model="startDate" label="Start date:" prepend-icon="event"
+                                    <v-text-field v-model="startDate" label="Start date:" prepend-icon="mdi-calendar"
                                         v-on="on"></v-text-field>
                                 </template>
                                 <v-date-picker v-model="startDate" @input="menuStartDate = false" :max="nowDate"
@@ -39,7 +39,7 @@
                             <v-menu v-model="menuEndDate" :close-on-content-click="false" :nudge-right="40" lazy
                                 transition="scale-transition" offset-y full-width min-width="290px">
                                 <template v-slot:activator="{ on }">
-                                    <v-text-field v-model="endDate" label="End date:" prepend-icon="event"
+                                    <v-text-field v-model="endDate" label="End date:" prepend-icon="mdi-canlendar"
                                         v-on="on"></v-text-field>
                                 </template>
                                 <v-date-picker v-model="endDate" @input="menuEndDate = false" :max="nowDate" type="date"
@@ -55,7 +55,7 @@
                                 @change="statusDnFilter"></v-select>
                         </v-flex>
                         <v-flex>
-                            <v-btn flat @click="resetFilter"><v-icon>refresh</v-icon>reset</v-btn>
+                            <v-btn flat @click="resetFilter"><v-icon>mdi-reload</v-icon>reset</v-btn>
                         </v-flex>
                     </v-layout>
                     <v-divider></v-divider>
@@ -110,7 +110,7 @@
                                     <v-flex xs3 mr-2>
                                         <v-text-field v-model="qcDate" label="Date:" readonly
                                             ref="qcDate"></v-text-field>
-                                    </v-flex>
+                                    </v-flex> 
                                     <v-flex xs3 mr-2>
                                         <v-text-field v-model="qcRefNo" label="Ref no:" readonly
                                             ref="qcRefNo"></v-text-field>
@@ -189,7 +189,8 @@
     </v-app>
 </template>
 <script>
-import { db } from '@/firebase'
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
+// import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 export default {
     components: {

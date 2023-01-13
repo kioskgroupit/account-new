@@ -5,7 +5,8 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Cash Payment Book</h1>
+                    <h1 class="pt-2 pb-1">Cash Payment Book</h1>
+
                     <hr>
                     <br>
 
@@ -16,7 +17,7 @@
                                 transition="scale-transition" offset-y full-width min-width="290px">
                                 <template v-slot:activator="{ on }">
                                     <v-text-field v-model="searchMonth" color="white" label="Select Month:"
-                                        prepend-icon="event" v-on="on" dark></v-text-field>
+                                        prepend-icon="mdi-calendar" v-on="on" dark></v-text-field>
                                 </template>
                                 <v-date-picker v-model="searchMonth" color="green" @input="menuCashBookDate = false"
                                     :max="nowDate" type="month" @change="searchDate"></v-date-picker>
@@ -30,7 +31,7 @@
                             <v-tooltip right>
                                 <template v-slot:activator="{ on }">
                                     <v-btn fab small color="success" v-on="on" @click="newCashBook"><v-icon
-                                            dark>add</v-icon></v-btn>
+                                            dark>mdi-plus</v-icon></v-btn>
                                 </template>
                                 <span>Add new cash payment book</span>
                             </v-tooltip>
@@ -123,7 +124,7 @@
     </v-app>
 </template>
 <script>
-import { db } from '@/firebase'
+import { collection, getDocs, where, getFirestore, orderBy, doc, QuerySnapshot } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 export default {

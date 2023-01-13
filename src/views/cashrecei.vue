@@ -5,7 +5,8 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Cash Received Book</h1>
+                    <h1 class="pt-2 pb-1">Cash Received Book</h1>
+               
                     <hr>
                     <br>
 
@@ -16,7 +17,7 @@
                                 transition="scale-transition" offset-y full-width min-width="290px">
                                 <template v-slot:activator="{ on }">
                                     <v-text-field v-model="searchMonth" color="white" label="Select Month:"
-                                        prepend-icon="event" v-on="on" dark></v-text-field>
+                                        prepend-icon="mdi-calendar" v-on="on" dark></v-text-field>
                                 </template>
                                 <v-date-picker v-model="searchMonth" color="indigo" @input="menuCashBookDate = false"
                                     :max="nowDate" type="month" @change="searchDate()"></v-date-picker>
@@ -29,8 +30,7 @@
                         <v-flex xs1 my-2>
                             <v-tooltip right>
                                 <template v-slot:activator="{ on }">
-                                    <v-btn fab small color="primary" v-on="on" @click="newCashBook()"><v-icon
-                                            dark>add</v-icon></v-btn>
+                                    <v-btn fab small color="primary" v-on="on" @click="newCashBook()"><v-icon dark>mdi-plus</v-icon></v-btn>
                                 </template>
                                 <span>Add new cash received book</span>
                             </v-tooltip>
@@ -47,7 +47,7 @@
                                                         full-width min-width="290px">
                                                         <template v-slot:activator="{ on }">
                                                             <v-text-field v-model="date" label="Date:"
-                                                                prepend-icon="event" readonly v-on="on"></v-text-field>
+                                                                prepend-icon="mdi-canlendar" readonly v-on="on"></v-text-field>
                                                         </template>
                                                         <v-date-picker v-model="date"
                                                             @input="menuDate = false"></v-date-picker>
@@ -206,7 +206,7 @@
 
 <script>
 // eslint-disable-next-line
-import { db } from '@/firebase'
+import { collection, getDocs, where, getFirestore, orderBy, doc, QuerySnapshot } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 export default {

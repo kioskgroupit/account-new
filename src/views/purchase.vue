@@ -5,10 +5,11 @@
         <v-container fluid>
             <v-card>
                 <v-card-text>
-                    <h1>Purchase</h1>
+                    <h1 class="pt-2 pb-1">Purchase</h1>
                     <hr>
                     <v-layout>
-                        <v-flex xs12 text-xs-right my-4>
+                        <v-flex xs12></v-flex>
+                        <v-flex xs12 d-flex justify-end pa-2 my-4>
                             <h3>Purchase no:</h3>
                         </v-flex>
                         <v-flex xs2 pa-1>
@@ -20,7 +21,7 @@
                             <v-menu v-model="menuDate" :close-on-content-click="false" :nudge-right="40" lazy
                                 transition="scale-transition" offset-y full-width min-width="290px">
                                 <template v-slot:activator="{ on }">
-                                    <v-text-field v-model="date" label="Date:" prepend-icon="event"
+                                    <v-text-field v-model="date" label="Date:" prepend-icon="mdi-calendar"
                                         v-on="on"></v-text-field>
                                 </template>
                                 <v-date-picker v-model="date" @input="menuDate = false"
@@ -251,12 +252,12 @@
                                         <br>
                                         <v-layout align-center column>
                                             <v-flex>
-                                                <v-btn @click="addPurchase">
-                                                    <v-icon dark>save</v-icon>
+                                                <v-btn class="mr-2" @click="addPurchase">
+                                                    <v-icon dark>mdi-content-save</v-icon>
                                                     Save
                                                 </v-btn>
-                                                <v-btn @click="clearPurchase">
-                                                    <v-icon dark>clear</v-icon>
+                                                <v-btn class="ml-2" @click="clearPurchase">
+                                                    <v-icon dark>mdi-close</v-icon>
                                                     Cancel
                                                 </v-btn>
                                             </v-flex>
@@ -270,12 +271,12 @@
                     <!-- Button save and cancel to Gl-->
                     <v-layout align-center column>
                         <v-flex>
-                            <v-btn @click="showDialog">
-                                <v-icon dark>save</v-icon>
+                            <v-btn class="mr-2" @click="showDialog">
+                                <v-icon dark>mdi-content-save</v-icon>
                                 Save
                             </v-btn>
-                            <v-btn @click="clearPurchase">
-                                <v-icon dark>clear</v-icon>
+                            <v-btn class="ml-2" @click="clearPurchase">
+                                <v-icon dark>mdi-close</v-icon>
                                 Cancel
                             </v-btn>
                         </v-flex>
@@ -286,9 +287,9 @@
     </v-app>
 </template>
 <script>
-import { db } from '@/firebase'
-import mainMenu from '@/components/mainMenu.vue'
+import { collection, getDocs, where, getFirestore, runTransaction, query, orderBy, doc, addDoc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
+import mainMenu from '@/components/mainMenu.vue'
 export default {
     components: {
         mainMenu,
