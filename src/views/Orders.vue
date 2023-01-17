@@ -155,41 +155,35 @@
                                                     @keypress.enter="searchProdCode" @input="uppercase"></v-text-field>
 
                                                 <!-- Show product info from the search in database -->
-                                                <v-dialog v-model="showSearchProCode" max-width="1024px">
+                                                <v-dialog v-model="showSearchProCode" max-width="1280px">
                                                     <v-card>
                                                         <v-card-title><span class="headline">List
                                                                 product</span></v-card-title>
                                                         <v-card-text>
-                                                            <v-data-table :headers="headerProCode" :items="listProduct"
-                                                                class="elevation-1">
-                                                                <template v-slot:items="props">
-                                                                    <td>{{props.item.Code}}</td>
-                                                                    <td>{{props.item.NameMM}}</td>
-                                                                    <td class="text-xs-right">
-                                                                        {{props.item.PriceMM.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,
-                                                                        ",")}}</td>
-                                                                    <td class="justify-center layout px-0">
-                                                                        <v-tooltip right>
-                                                                            <v-menu offset-y>
-                                                                                <template v-slot:activator="{ on, attrs }">
-                                                                                    <v-icon v-bind="attrs" v-on="on">
-                                                                                        mdi-check-circle
-                                                                                    </v-icon>
-                                                                                </template>
-                                                                            </v-menu>
-                                                                            <!-- <template v-slot:activator="{ on }">
-                                                                                <v-icon class="mr-1"
-                                                                                    @click="selectProCode(props.item)"
-                                                                                    v-on="on">mdi-check-circle</v-icon>
-                                                                            </template> -->
-                                                                            <span>Choose this product</span>
-                                                                        </v-tooltip>
-                                                                    </td>
-                                                                </template>
-                                                            </v-data-table>
-                                                        </v-card-text>
+                                                    <v-data-table :headers="headerProCode" :items="listProduct" class="elevation-1">
+                                                        <template v-slot:item="props">
+                                                            <td class="text-center">{{props.item.Code}}</td>
+                                                            <td class="text-center">{{props.item.NameMM}}</td>
+                                                            <td class="text-center">
+                                                                {{props.item.PriceMM.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,
+                                                                ",")}}</td>
+                                                            <td class="text-center">
+                                                                <v-tooltip left>
+                                                                    <template v-slot:activator="{ on, attrs }">
+                                                                        <v-icon @click="selectProCode
+                                                                        (props.item)" color="primary" dark v-bind="attrs" v-on="on">
+                                                                            mdi-check-circle
+                                                                        </v-icon>
+                                                                    </template>
+                                                                    <span>Choose this Product</span>
+                                                                </v-tooltip>
+                                                            </td>
+                                                        </template>
+                                                    </v-data-table>
+                                                    </v-card-text>
                                                     </v-card>
                                                 </v-dialog>
+                                                
                                             </v-flex>
                                             <v-flex>
                                                 <v-text-field label="Description" v-model="prod.Name"
@@ -271,9 +265,9 @@
                                                     <font size=3>
                                                         <vue-numeric class="line" separator="," :precision="2"
                                                             :value="prod.amt=prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) 
-                                                        - prod.shockprice - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice) * (prod.gp/100))
-                                                        - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice
-                                                        - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice) * (prod.gp/100))) * (prod.dc/100))"></vue-numeric>
+                                                            - prod.shockprice - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice) * (prod.gp/100))
+                                                            - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice
+                                                            - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice) * (prod.gp/100))) * (prod.dc/100))"></vue-numeric>
                                                     </font>
                                                 </v-flex>
                                             </v-flex>
@@ -357,10 +351,10 @@
                                 <v-flex xs2 center my-2>
                                     <v-btn fab small color="primary" @click="addDetail"
                                         :disabled="i != orderDetails.length -1">
-                                        <v-icon dark>add</v-icon>
+                                        <v-icon dark>mdi-plus</v-icon>
                                     </v-btn>
                                     <v-btn fab small color="error" @click="delDetail(item)" tabindex="-1">
-                                        <v-icon dark>remove</v-icon>
+                                        <v-icon dark>mdi-minus</v-icon>
                                     </v-btn>
                                 </v-flex>
                             </v-layout>
@@ -386,11 +380,11 @@
                                         <v-layout>
                                             <v-flex xs5>
                                                 <v-menu v-model="menushipDate" :close-on-content-click="false"
-                                                    :nudge-right="40" lazy transition="scale-transition" offset-y
-                                                    full-width min-width="290px">
+                                                    :nudge-right="40" transition="scale-transition" offset-y
+                                                     min-width="290px">
                                                     <template v-slot:activator="{ on }">
                                                         <v-text-field v-model="shipDate" label="Shipping Date:"
-                                                            prepend-icon="event" readonly v-on="on"></v-text-field>
+                                                            prepend-icon="mdi-calendar" readonly v-on="on"></v-text-field>
                                                     </template>
                                                     <v-date-picker v-model="shipDate"
                                                         @input="menushipDate = false"></v-date-picker>
@@ -422,11 +416,11 @@
                                                 </v-flex>
                                                 <v-flex xs4 px-2>
                                                     <v-menu v-model="menuPayDateOrder" :close-on-content-click="false"
-                                                        :nudge-right="40" lazy transition="scale-transition" offset-y
-                                                        full-width min-width="290px">
+                                                        :nudge-right="40" transition="scale-transition" offset-y
+                                                         min-width="290px">
                                                         <template v-slot:activator="{ on }">
                                                             <v-text-field v-model="payDateOrder" label="Date:"
-                                                                prepend-icon="event" readonly v-on="on"
+                                                                prepend-icon="mdi-calendar" readonly v-on="on"
                                                                 ref="payDateOrder"></v-text-field>
                                                         </template>
                                                         <v-date-picker v-model="payDateOrder"
@@ -510,7 +504,7 @@
 </template>
 <script>
 
-import { collection, getDocs, where, getFirestore, query, orderBy, doc } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, query, orderBy, onSnapshot, startAt, endAt, doc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -567,10 +561,10 @@ export default {
             },
             showSearchProCode: false,
             headerProCode: [
-                { text: 'Product code', value: 'Code' },
-                { text: 'Product name', sortable: false, },
-                { text: 'Price', align: 'right', sortable: false, },
-                { text: '', align: 'right', sortable: false, },
+                { text: 'Product code', value: 'Code', align: 'center', sortable: false, },
+                { text: 'Product name', value: 'NameMM', sortable: false, align: 'center' },
+                { text: 'Price', align: 'center', value: 'PriceMM', sortable: false, },
+                { text: '', sortable: false, align: 'center' },
             ],
             itemDisc: ['Percent(%)', 'Shock Price(MMK)'],
             showPercent: false,
@@ -643,14 +637,13 @@ export default {
                 let app = this
                 // let searchN = this.searchName + '\uf8ff'
                 const db = getFirestore()
-                // const docRef = await getDocs(collection(db, "customer"));
-                const docRef = await getDocs(collection(db, "customer"));
-                docRef.forEach(() => {
+                const q = query(collection(db, "customer"), orderBy('name'), startAt(this.searchName), endAt(this.searchName));
+                onSnapshot(q, (snapshot) => {
                     app.customer = []
-                    docRef.forEach(function (doc) {
+                    snapshot.docs.map((doc) => {
+                        // console.log(doc.data().name)
                         let curDoc = doc.data()
                         app.customer.push(curDoc)
-                        // console.log(app.customer[0].name)
                     })
                     if (app.customer.length == 0) {
                         alert("This customer name is not in the system.")
@@ -675,7 +668,7 @@ export default {
                         this.contact = ''
                         this.tel = ''
                     }
-                })
+                });
                 // .catch(function (error) {
                 //         console.log("Error getting documents: ", error)
                 //     })
@@ -691,16 +684,16 @@ export default {
             else {
                 let app = this
                 const db = getFirestore()
-                const docRef = await getDocs(collection(db, "customer"), where("code"),(this.searchCode.toUpperCase()),(this.searchCode.toUpperCase() + "\uf8ff"));
-                docRef.forEach(() => {
-                        app.customer = []
-                        docRef.forEach(function (doc) {
-                            let curDoc = doc.data()
-                            app.customer.push(curDoc)
-
-                        })
+                const q = query(collection(db, "customer"), orderBy('code'), startAt(this.searchCode), endAt(this.searchCode));
+                onSnapshot(q, (snapshot) => {
+                    app.customer = []
+                    snapshot.docs.map((doc) => {
+                        // console.log(doc.data().code)
+                        let curDoc = doc.data()
+                        app.customer.push(curDoc)
+                    })
                         if (app.customer.length == 0) {
-                            alert("This customer name is not in the system.")
+                            alert("This customer code is not in the system.")
                             this.searchCode = ''
                             this.dialogCust = false
                             this.searchCode = ''
@@ -870,13 +863,17 @@ export default {
                 this.$refs.focusProdCode.focus()
             }
             else {
-                const db = getFirestore()
-                const docRef = collection(db, "code")
-                const q = await doc(docRef, "productcode", where("Code", "==", "this.prod.Code"));
-                const querySnapshot = await getDocs(q)
-                 querySnapshot.forEach((doc) => {
-                    app.listProduct.push(doc.data())
-                    console.log(app.listProduct)
+
+                const db = getFirestore()    
+                const docRef = doc(db, "code", "productcode");
+                const docSnap = query(collection(docRef, "proCode"));
+                const q = query(docSnap, orderBy('Code'), startAt(this.prod.Code), endAt(this.prod.Code + "\uf8ff"));
+                onSnapshot(q, (snapshot) => {
+                    // this.listProduct = []
+                    snapshot.docs.map((doc) => {
+                        app.listProduct.push(doc.data())
+                        // console.log(app.listProduct)
+                          })
                         if (app.listProduct.length == 0) {
                             app.showSearchProCode = false
                             alert("This product code is not in the system......")
@@ -986,7 +983,9 @@ export default {
                 let app = this
                 let year = new Date().toISOString().substr(0, 4)
                 const db = getFirestore()
-                let DocRef = db.collection("counter")(year)
+                // let DocRef = db.collection("counter").doc(year)
+                // db.collection("order").where("orderNo", "==", this.orderType.substr(2) + this.orderNo).get()
+                let DocRef = doc(collection(db, "counter"), year);
                 const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.orderType.substr(2) + this.orderNo));
                 docRef.forEach(() => {
                         app.checkOrder = []
@@ -1214,19 +1213,17 @@ export default {
         let app = this
         const db = getFirestore()
         const docRef = await getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
-            docRef.forEach(doc => {
-                app.itemPayMent = []
-                    let readDoc = doc.data().accName
-                    app.itemPayMent.push(readDoc)
-                // payment.forEach(doc => {
-                //     let readDoc = doc.data().accName
-                //     app.itemPayMent.push(readDoc)
-                // })
-            })
-       getDocs(collection(db, "code"),("color"));
-       docRef.forEach((color) => {
-        //    app.itemFrame.push(color.data().frame.sort())
-        //    app.itemFront.push(color.data().front.sort())
+       docRef.forEach(doc => {
+           app.itemPayMent = []
+           let readDoc = doc.data().accName
+           app.itemPayMent.push(readDoc)
+           // payment.forEach(doc => {
+           //     let readDoc = doc.data().accName
+           //     app.itemPayMent.push(readDoc)
+           // })
+           })
+            const docSnap = await getDocs(collection(db, "code"));
+            docSnap.forEach((color) => {
                 app.itemFrame.push(color.data().frame)
                 app.itemFront.push(color.data().front)
             })
