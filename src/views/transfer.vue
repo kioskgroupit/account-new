@@ -1,116 +1,167 @@
-<<!-- <template>
-    <div class="about">
-        <h1>This is an orderPayment page</h1>
-    </div>
-</template> -->
-
 <template>
-    <v-app>
-        <mainMenu></mainMenu>
-        <v-container>
-            <v-btn @click="addData()">Click</v-btn>
-
-        </v-container>
-    </v-app>
+    <v-data-table :headers="headers" :items="customers" sort-by="calories" class="elevation-1">
+        <template v-slot:top>
+            <v-toolbar flat color="white">
+                <v-toolbar-title>My CRUD</v-toolbar-title>
+                <v-divider class="mx-4" inset vertical></v-divider>
+                <v-spacer></v-spacer>
+            </v-toolbar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+            <v-icon small class="mr-2" @click="editItem(item)">
+                mdi-pencil
+            </v-icon>
+        </template>
+    </v-data-table>
 </template>
+
 <script>
-import { collection, doc, setDoc, query, where, getFirestore, getDocs } from "firebase/firestore";
-// import { getFirestore, collection, getDocs } from 'firebase/firestore'
-// import { db, fieldValue } from '@/firebase'
-import mainMenu from '@/components/mainMenu.vue'
 export default {
-    components: {
-        mainMenu
-    },
-    data() {
-        return {
+    data: () => ({
+        dialog: false,
+        headers: [
+            { text: 'Dessert (100g serving)', align: 'start', sortable: false, value: 'name' },
+            { text: 'Calories', value: 'calories' },
+            { text: 'Fat (g)' },        
+            { text: '', value: 'actions', sortable: false },
+        ],
+        customers: [],
+        editedIndex: -1,
+        editedItem: {
+            name: '',
+            calories: 0,
+            fat: 0,
+            carbs: 0,
+            protein: 0,
+        },
+        defaultItem: {
+            name: '',
+            calories: 0,
+            fat: 0,
+            carbs: 0,
+            protein: 0,
+        },
+    }),
 
-        }
+    computed: {
+        formTitle() {
+            return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        },
     },
-    mounted() {
-        // this.$refs.searchName.focus()
-        // let app = this
-        // const db = getFirestore()
-        // const querySnapshot = await getDocs(collection(db, "users"));
-        // querySnapshot.forEach((doc) => {
-        //     console.log(`${doc.id} => ${doc.data()}`);
-        // });
-        // const querySnapshot = await getDocs(collection(db, "order"));
-        // querySnapshot.forEach((doc) => {
-        //     console.log('${doc.id} => ${doc.data()}');
-        // });
-        // collection(db, "chartAccount").where("cash", "==", "Y").get()
-        //     .then(payment => {
-        //         app.itemPayMent = []
-        //         payment.forEach(doc => {
-        //             let readDoc = doc.data().accName
-        //             app.itemPayMent.push(readDoc)
-        //         })
-        //     })
-        // collection(db, "code").doc("color").get()
-        //     .then(color => {
-        //         app.itemFrame.push(color.data().frame.sort())
-        //         app.itemFront.push(color.data().front.sort())
-        //     })
+
+    watch: {
+        dialog(val) {
+            val || this.close()
+        },
     },
+
+    created() {
+        this.initialize()
+    },
+
     methods: {
-        //Adding Data
-        // addData() {
-        //         const db = getFirestore()           
-        //         addDoc(collection(db, "users"), {
-        //             first: "Alan",
-        //             middle: "Mathison",
-        //             last: "Turing",
-        //             born: 1912
-        //         });
-        // }
-        //Read Data
-        //     async addData() {
-        //         const db = getFirestore()
-        //         const docRef = await getDocs(collection(db, "users"));
-        //         docRef.forEach((doc) => {
-        //             console.log(doc.data().first+doc.data().middle+doc.data().last);
-        //             console.log(doc.data().born);
-        //         });
-        //    }
-        async addData() {
-            // let app = this
-            // let year = new Date().toISOString().substr(0, 4)
-            // let subYear = new Date().toISOString().substr(2, 2)
-            // const db = getFirestore()
-            // const docRef = await getDocs(collection(db, "customer"),("2023", "==", year));
-            // docRef.forEach((doc) => {
-            //         let typeDoc = doc.data()[this.orderType] + 1
-            //         if (typeDoc <= 9999) {
-            //             typeDoc = ("000" + typeDoc).slice(-4)
-            //         }
-            //         this.orderNo = subYear + typeDoc
-            //         console.log(this.orderNo)
-            //     });
-            // const db = getFirestore()
-            // const docRef = await getDocs(collection(db, 'customer'), where('name', '==', 'address'));
-            // docRef.forEach((doc) => {
-            //         let name = doc.data()
-            //     console.log(name)
-            //     alert(name)
-            // });
-            const db = getFirestore()
+        initialize() {
+            this.customers = [
+                {
+                    name: 'Frozen Yogurt',
+                    calories: 159,
+                    fat: 6.0,
+                    carbs: 24,
+                    protein: 4.0,
+                },
+                {
+                    name: 'Ice cream sandwich',
+                    calories: 237,
+                    fat: 9.0,
+                    carbs: 37,
+                    protein: 4.3,
+                },
+                {
+                    name: 'Eclair',
+                    calories: 262,
+                    fat: 16.0,
+                    carbs: 23,
+                    protein: 6.0,
+                },
+                {
+                    name: 'Cupcake',
+                    calories: 305,
+                    fat: 3.7,
+                    carbs: 67,
+                    protein: 4.3,
+                },
+                {
+                    name: 'Gingerbread',
+                    calories: 356,
+                    fat: 16.0,
+                    carbs: 49,
+                    protein: 3.9,
+                },
+                {
+                    name: 'Jelly bean',
+                    calories: 375,
+                    fat: 0.0,
+                    carbs: 94,
+                    protein: 0.0,
+                },
+                {
+                    name: 'Lollipop',
+                    calories: 392,
+                    fat: 0.2,
+                    carbs: 98,
+                    protein: 0,
+                },
+                {
+                    name: 'Honeycomb',
+                    calories: 408,
+                    fat: 3.2,
+                    carbs: 87,
+                    protein: 6.5,
+                },
+                {
+                    name: 'Donut',
+                    calories: 452,
+                    fat: 25.0,
+                    carbs: 51,
+                    protein: 4.9,
+                },
+                {
+                    name: 'KitKat',
+                    calories: 518,
+                    fat: 26.0,
+                    carbs: 65,
+                    protein: 7,
+                },
+            ]
+        },
 
-            // const docRef = await getDocs(collection(db, 'code' + '/productcode'), where('proCode', '==', 'Code'));
-            // const docRef = await getDocs(db, collection("code"), doc("productcode"), collection("proCode")("Code"));
-            // const docRef = collection(db, "code")
-            // const q = await query(docRef, "productcode", where("Code", "==", "this.prod.Code"));
-            // const user = await getDocs(q)
-            // const docRef = doc(db, collection("code", "productcode"));
-            const docRef = await getDocs(db, collection('code'), "productcode")
-            // const docSnap = await getDoc(docRef);
-            docRef.forEach((doc) => {
-                let name = doc.data()
-                console.log(name)
-            });
+        editItem(item) {
+            this.editedIndex = this.desserts.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialog = true
+        },
 
+        deleteItem(item) {
+            const index = this.desserts.indexOf(item)
+            confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+        },
 
-        }
-    }
+        close() {
+            this.dialog = false
+            this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
+        },
+
+        save() {
+            if (this.editedIndex > -1) {
+                Object.assign(this.desserts[this.editedIndex], this.editedItem)
+            } else {
+                this.desserts.push(this.editedItem)
+            }
+            this.close()
+        },
+    },
 }
 </script>

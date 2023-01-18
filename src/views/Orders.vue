@@ -67,69 +67,70 @@
                         </v-layout>
 
                         <!-- Show customer info from the search in database -->
-                        <v-dialog v-model="dialogCust" max-width="1280px">
-                            <v-data-table :headers="headers" :items="customer" class="elevation-1">
-                                        <template v-slot:item="props">
-                                            <td class="text-center">{{props.item.code}}</td>
-                                            <td class="text-center">{{props.item.name}}</td>
-                                            <td class="text-center">{{props.item.address}}</td>
-                                            <td class="text-center">{{props.item.contact}}</td>
-                                            <td class="text-center">{{props.item.tel}}</td>
-                                            <td class="text-center">
-                                                <v-tooltip left>
-                                                    <template v-slot:activator="{ on, attrs }">
+                                    <v-dialog v-model="dialogCust" max-width="1280px">
+                                        <v-data-table :headers="headers" :items="customer"
+                                        class="elevation-1">
+                                            <template v-slot:items="props">
+                                                <td class="text-center">{{props.item.code}}</td>
+                                                <td>{{props.item.name}}</td>
+                                                <td>{{props.item.address}}</td>
+                                                <td>{{props.item.contact}}</td>
+                                                <td class="text-xs-left">{{props.item.tel}}</td>
+                                                <td hidden class="text-xs-left">{{props.item.gp}}</td>
+                                                <td hidden class="text-xs-left">{{props.item.dc}}</td>
+                                                 <td class="justify-center layout px-0">
+                                                    <v-tooltip left> 
+                                                    <template v-slot:item.actions="{ on, attrs }">
                                                         <v-icon @click="searchItem(props.item)" color="primary" dark v-bind="attrs" v-on="on">
-                                                            mdi-check-circle
-                                                        </v-icon>
-                                                    </template>
+                                                            mdi-check-circle</v-icon>
+                                                        </template>
                                                     <span>Choose this customer</span>
                                                 </v-tooltip>
                                             </td>
-                                 </template>
-                            </v-data-table>
+                                        </template>
+                            </v-data-table>                        
                         </v-dialog>
-
+                     
                         <!-- Customer info from the search in database -->
-                        <div>
-                            <v-layout>
-                                <v-flex xs2 text-xs-right my-1>Customer code:</v-flex>
-                                <v-flex xs6>
-                                    <input type="text" class="inputCust" size="20" v-model="code" ref="custCode"
-                                        disabled>
-                                </v-flex>
-                            </v-layout>
-                            <v-layout>
-                                <v-flex xs2 text-xs-right my-1>Customer name:</v-flex>
-                                <v-flex xs6>
-                                    <input type="text" class="inputCust" size="35" v-model="name">
-                                </v-flex>
-                            </v-layout>
-                            <v-layout>
-                                <v-flex xs2 text-xs-right my-1>Address:</v-flex>
-                                <v-flex xs8>
-                                    <input type="text" class="inputCust" size="65" v-model="address" ref="focusAddress">
-                                </v-flex>
-                            </v-layout>
-                            <v-layout>
-                                <v-flex xs2 text-xs-right my-1>PO ref#:</v-flex>
-                                <v-flex xs5>
-                                    <input type="text" class="inputCust" size="30" v-model="poRef">
-                                </v-flex>
-                            </v-layout>
-                            <v-layout>
-                                <v-flex xs2 text-xs-right my-1>Contact name:</v-flex>
-                                <v-flex xs5>
-                                    <input type="text" class="inputCust" size="25" v-model="contact">
-                                </v-flex>
-                            </v-layout>
-                            <v-layout>
-                                <v-flex xs2 text-xs-right my-1>Tel:</v-flex>
-                                <v-flex xs5>
-                                    <input type="text" class="inputCust" autocomplete="off" v-model="tel">
-                                </v-flex>
-                            </v-layout>
-                        </div>
-                        <br>
+                                <div>
+                                    <v-layout>
+                                        <v-flex xs2 text-xs-right my-1>Customer code:</v-flex>
+                                        <v-flex xs6>
+                                            <input type="text" class="inputCust" size="20" v-model="code" ref="custCode" disabled>
+                                        </v-flex>
+                                    </v-layout>
+                                    <v-layout>
+                                        <v-flex xs2 text-xs-right my-1>Customer name:</v-flex>
+                                        <v-flex xs6>
+                                            <input type="text" class="inputCust" size="35" v-model="name">
+                                        </v-flex>
+                                    </v-layout>
+                                    <v-layout>
+                                        <v-flex xs2 text-xs-right my-1>Address:</v-flex>
+                                        <v-flex xs8>
+                                            <input type="text" class="inputCust" size="65" v-model="address" ref="focusAddress">
+                                        </v-flex>
+                                    </v-layout>
+                                    <v-layout>
+                                        <v-flex xs2 text-xs-right my-1>PO ref#:</v-flex>
+                                        <v-flex xs5>
+                                            <input type="text" class="inputCust" size="30" v-model="poRef">
+                                        </v-flex>
+                                    </v-layout>
+                                    <v-layout>
+                                        <v-flex xs2 text-xs-right my-1>Contact name:</v-flex>
+                                        <v-flex xs5>
+                                            <input type="text" class="inputCust" size="25" v-model="contact">
+                                        </v-flex>
+                                    </v-layout>
+                                    <v-layout>
+                                        <v-flex xs2 text-xs-right my-1>Tel:</v-flex>
+                                        <v-flex xs5>
+                                            <input type="text" class="inputCust" autocomplete="off" v-model="tel">
+                                        </v-flex>
+                                    </v-layout>
+                                </div>
+                            <br>
 
                         <!-- Add new product button -->
                         <div v-if="showOpenDetail">
@@ -161,7 +162,7 @@
                                                                 product</span></v-card-title>
                                                         <v-card-text>
                                                     <v-data-table :headers="headerProCode" :items="listProduct" class="elevation-1">
-                                                        <template v-slot:item="props">
+                                                        <template v-slot:items="props">
                                                             <td class="text-center">{{props.item.Code}}</td>
                                                             <td class="text-center">{{props.item.NameMM}}</td>
                                                             <td class="text-center">
@@ -169,7 +170,7 @@
                                                                 ",")}}</td>
                                                             <td class="text-center">
                                                                 <v-tooltip left>
-                                                                    <template v-slot:activator="{ on, attrs }">
+                                                                    <template v-slot:activator.actions="{ on, attrs }">
                                                                         <v-icon @click="selectProCode
                                                                         (props.item)" color="primary" dark v-bind="attrs" v-on="on">
                                                                             mdi-check-circle
@@ -561,10 +562,10 @@ export default {
             },
             showSearchProCode: false,
             headerProCode: [
-                { text: 'Product code', value: 'Code', align: 'center', sortable: false, },
-                { text: 'Product name', value: 'NameMM', sortable: false, align: 'center' },
-                { text: 'Price', align: 'center', value: 'PriceMM', sortable: false, },
-                { text: '', sortable: false, align: 'center' },
+                { text: 'Product code', value: 'Code' },
+                { text: 'Product name', sortable: false, },
+                { text: 'Price', align: 'right', sortable: false, },
+                { text: '', value: 'actions', sortable: false },
             ],
             itemDisc: ['Percent(%)', 'Shock Price(MMK)'],
             showPercent: false,
@@ -588,12 +589,12 @@ export default {
 
 
             headers: [
-                { text: 'Customer code', sortable: false, align: 'center', value: 'code'},
-                { text: 'Customer name', sortable: false, align: 'center', value: 'name' },
-                { text: 'Address', sortable: false, align: 'center', value: 'address' },
-                { text: 'Contact name', sortable: false, align: 'center', value: 'contact' },
-                { text: 'Telephone number', sortable: false, align: 'center', value: 'tel'},
-                { text: '', sortable: false, align: 'center'},
+                { text: 'Customer code', align: 'center', value: 'code' },
+                { text: 'Customer name', sortable: false, align: 'center', value: 'name'},
+                { text: 'Address', sortable: false, align: 'center' },
+                { text: 'Contact name', sortable: false, align: 'center' },
+                { text: 'Telephone number', sortable: false, align: 'center' },
+                { text: '', value: 'actions', sortable: false },
             ],
 
             itemPayMent: [],
@@ -637,7 +638,7 @@ export default {
                 let app = this
                 // let searchN = this.searchName + '\uf8ff'
                 const db = getFirestore()
-                const q = query(collection(db, "customer"), orderBy('name'), startAt(this.searchName), endAt(this.searchName));
+                const q = query(collection(db, "customer"), orderBy('name'), startAt(this.searchName), endAt(this.searchName + '\uf8ff'));
                 onSnapshot(q, (snapshot) => {
                     app.customer = []
                     snapshot.docs.map((doc) => {
@@ -684,7 +685,7 @@ export default {
             else {
                 let app = this
                 const db = getFirestore()
-                const q = query(collection(db, "customer"), orderBy('code'), startAt(this.searchCode), endAt(this.searchCode));
+                const q = query(collection(db, "customer"), orderBy('code'), startAt(this.searchCode), endAt(this.searchCode + '\uf8ff'));
                 onSnapshot(q, (snapshot) => {
                     app.customer = []
                     snapshot.docs.map((doc) => {
@@ -733,7 +734,7 @@ export default {
             this.tel = item.tel
             this.prod.gp = item.gp
             this.prod.dc = item.dc
-            this.type = item.code.substr(0, 1)
+            this.type = item.code
             this.dialogCust = false
             this.searchName = ''
             this.$nextTick(() => { this.$refs.focusAddress.focus() })
