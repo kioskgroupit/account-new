@@ -24,8 +24,8 @@
                                 <v-menu v-model="menuorderDate" :close-on-content-click="false" :nudge-right="40"
                                     transition="scale-transition" offset-y min-width="290px">
                                     <template v-slot:activator="{ on }">
-                                        <v-text-field v-model="orderDate" label="Date:" prepend-icon="mdi-calendar"
-                                            v-on="on"></v-text-field>
+                                    <v-text-field v-model="orderDate" label="Date:" prepend-icon="mdi-calendar"
+                                      v-on="on"></v-text-field>
                                     </template>
                                     <v-date-picker v-model="orderDate" @input="menuorderDate = false"></v-date-picker>
                                 </v-menu>
@@ -68,29 +68,25 @@
 
                         <!-- Show customer info from the search in database -->
                                     <v-dialog v-model="dialogCust" max-width="1280px">
-                                        <v-data-table :headers="headers" :items="customer"
-                                        class="elevation-1">
-                                            <template v-slot:items="props">
-                                                <td class="text-center">{{props.item.code}}</td>
-                                                <td>{{props.item.name}}</td>
-                                                <td>{{props.item.address}}</td>
-                                                <td>{{props.item.contact}}</td>
-                                                <td class="text-xs-left">{{props.item.tel}}</td>
-                                                <td hidden class="text-xs-left">{{props.item.gp}}</td>
-                                                <td hidden class="text-xs-left">{{props.item.dc}}</td>
-                                                 <td class="justify-center layout px-0">
-                                                    <v-tooltip left> 
-                                                    <template v-slot:item.actions="{ on, attrs }">
-                                                        <v-icon @click="searchItem(props.item)" color="primary" dark v-bind="attrs" v-on="on">
-                                                            mdi-check-circle</v-icon>
-                                                        </template>
-                                                    <span>Choose this customer</span>
-                                                </v-tooltip>
-                                            </td>
+                                        <template>
+                                            <v-data-table :headers="headers" :items="customer" class="elevation-1">
+                                                <template v-slot:items="props">
+                                                    <td class="text-center">{{props.item.code}}</td>
+                                                    <td>{{props.item.name}}</td>
+                                                    <td>{{props.item.address}}</td>
+                                                    <td>{{props.item.contact}}</td>
+                                                    <td class="text-xs-left">{{props.item.tel}}</td>
+                                                    <td hidden class="text-xs-left">{{props.item.gp}}</td>
+                                                    <td hidden class="text-xs-left">{{props.item.dc}}</td>
+                                                </template>
+                                                <template v-slot:[`item.actions`]="{ on, attrs }">
+                                                    <v-icon @click="searchItem(props.item)" color="primary" dark v-bind="attrs" v-on="on">
+                                                        mdi-check-circle
+                                                    </v-icon>
+                                                </template>
+                                            </v-data-table>
                                         </template>
-                            </v-data-table>                        
-                        </v-dialog>
-                     
+                                      </v-dialog>                   
                         <!-- Customer info from the search in database -->
                                 <div>
                                     <v-layout>
@@ -170,7 +166,7 @@
                                                                 ",")}}</td>
                                                             <td class="text-center">
                                                                 <v-tooltip left>
-                                                                    <template v-slot:activator.actions="{ on, attrs }">
+                                                                    <template v-slot:[`item.actions`]="{ on, attrs }">
                                                                         <v-icon @click="selectProCode
                                                                         (props.item)" color="primary" dark v-bind="attrs" v-on="on">
                                                                             mdi-check-circle

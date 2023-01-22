@@ -1,31 +1,33 @@
 <template>
-    <v-data-table :headers="headers" :items="customers" sort-by="calories" class="elevation-1">
+    <v-data-table :headers="headers" :items="desserts" class="elevation-1">
         <template v-slot:top>
-            <v-toolbar flat color="white">
-                <v-toolbar-title>My CRUD</v-toolbar-title>
-                <v-divider class="mx-4" inset vertical></v-divider>
-                <v-spacer></v-spacer>
-            </v-toolbar>
         </template>
-        <template v-slot:item.actions="{ item }">
-            <v-icon small class="mr-2" @click="editItem(item)">
-                mdi-pencil
+        <template v-slot:[`item.actions`]="{ item }">
+            <v-icon class="mr-2" color="primary" dark @click="editItem(item)">
+                mdi-check-circle
             </v-icon>
         </template>
     </v-data-table>
 </template>
-
 <script>
 export default {
     data: () => ({
         dialog: false,
+        dialogDelete: false,
         headers: [
-            { text: 'Dessert (100g serving)', align: 'start', sortable: false, value: 'name' },
+            {
+                text: 'Dessert (100g serving)',
+                align: 'start',
+                sortable: false,
+                value: 'name',
+            },
             { text: 'Calories', value: 'calories' },
-            { text: 'Fat (g)' },        
-            { text: '', value: 'actions', sortable: false },
+            { text: 'Fat (g)', value: 'fat' },
+            { text: 'Carbs (g)', value: 'carbs' },
+            { text: 'Protein (g)', value: 'protein' },
+            { text: 'Actions', value: 'actions', sortable: false },
         ],
-        customers: [],
+        desserts: [],
         editedIndex: -1,
         editedItem: {
             name: '',
@@ -53,6 +55,9 @@ export default {
         dialog(val) {
             val || this.close()
         },
+        dialogDelete(val) {
+            val || this.closeDelete()
+        },
     },
 
     created() {
@@ -61,7 +66,7 @@ export default {
 
     methods: {
         initialize() {
-            this.customers = [
+            this.desserts = [
                 {
                     name: 'Frozen Yogurt',
                     calories: 159,
@@ -142,12 +147,26 @@ export default {
         },
 
         deleteItem(item) {
-            const index = this.desserts.indexOf(item)
-            confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+            this.editedIndex = this.desserts.indexOf(item)
+            this.editedItem = Object.assign({}, item)
+            this.dialogDelete = true
+        },
+
+        deleteItemConfirm() {
+            this.desserts.splice(this.editedIndex, 1)
+            this.closeDelete()
         },
 
         close() {
             this.dialog = false
+            this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem)
+                this.editedIndex = -1
+            })
+        },
+
+        closeDelete() {
+            this.dialogDelete = false
             this.$nextTick(() => {
                 this.editedItem = Object.assign({}, this.defaultItem)
                 this.editedIndex = -1
