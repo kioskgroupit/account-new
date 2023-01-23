@@ -92,6 +92,14 @@ export default {
             ],
         }
     },
+    //  Vue Instance
+    watch: {
+        user(value) {
+            if (value !== null && value !== undefined) {
+                this.$router.push('/')
+            }
+        }
+    },
     methods: {
         login() {
             if (this.email == "") {
@@ -157,18 +165,18 @@ export default {
                         sessionStorage.isAdmin = 'false'
                     }
                 })
-                this.$store.commit('setUser', user.email)
+                this.$store.commit('setUser',user.email)
                 sessionStorage.user = user.email
                 // this.$router.push("/index")
                 this.$router.currentRoute.name !== 'index' && this.$router.push({ name: 'index' })
             }
-            else {
-                this.$store.commit('nullUser')
+            else{
+                this.$store.commit('clearUser')
                 sessionStorage.user = 'null'
                 sessionStorage.isAdmin = 'false'
             }
         })
-        this.$nextTick(() => { this.$refs.focusUser.focus() })
+        this.$nextTick(()=>{this.$refs.focusUser.focus()})
     }
 }
 </script>

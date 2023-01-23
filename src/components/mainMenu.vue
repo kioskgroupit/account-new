@@ -12,7 +12,7 @@
             <v-toolbar-items class="hidden-xs-only hidden-sm-only">
                 <v-menu open-on-hover offset-y bottom v-for="item in menuItem" :key="item.title">
                     <template v-slot:activator="{ on }">
-                        <v-btn v-on="on" class="indigo white--text">
+                        <v-btn depressed v-on="on" class="indigo white--text">
                             <v-icon>{{ item.icon }}</v-icon>
                             {{ item.title }}
                         </v-btn>
