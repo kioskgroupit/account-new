@@ -587,9 +587,9 @@ export default {
             headers: [
                 { text: 'Customer code', align: 'center', value: 'code' },
                 { text: 'Customer name', sortable: false, align: 'center', value: 'name'},
-                { text: 'Address', sortable: false, align: 'center' },
-                { text: 'Contact name', sortable: false, align: 'center' },
-                { text: 'Telephone number', sortable: false, align: 'center' },
+                { text: 'Address', sortable: false, align: 'center', value: 'address' },
+                { text: 'Contact name', sortable: false, align: 'center', value: 'contact' },
+                { text: 'Telephone number', sortable: false, align: 'center', value: 'tel' },
                 { text: '', value: 'actions', sortable: false },
             ],
 
