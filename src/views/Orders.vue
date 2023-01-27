@@ -9,7 +9,9 @@
                     <div>
                         <v-layout>
                             <v-flex xs12></v-flex>
-                            <v-flex xs12 d-flex justify-end pa-2 my-4><h3>Order no:</h3></v-flex>
+                            <v-flex xs12 d-flex justify-end pa-2 my-4>
+                                <h3>Order no:</h3>
+                            </v-flex>
                             <v-flex xs1 pa-1 pl-2 text-xs-right>
                                 <v-select :items="itemOrderType" v-model="orderType" ref="orderType"
                                     @change="changeOrderNo()" item-text="name" item-value="id"></v-select>
@@ -24,8 +26,8 @@
                                 <v-menu v-model="menuorderDate" :close-on-content-click="false" :nudge-right="40"
                                     transition="scale-transition" offset-y min-width="290px">
                                     <template v-slot:activator="{ on }">
-                                    <v-text-field v-model="orderDate" label="Date:" prepend-icon="mdi-calendar"
-                                      v-on="on"></v-text-field>
+                                        <v-text-field v-model="orderDate" label="Date:" prepend-icon="mdi-calendar"
+                                            v-on="on"></v-text-field>
                                     </template>
                                     <v-date-picker v-model="orderDate" @input="menuorderDate = false"></v-date-picker>
                                 </v-menu>
@@ -67,73 +69,79 @@
                         </v-layout>
 
                         <!-- Show customer info from the search in database -->
-                                    <v-dialog v-model="dialogCust" max-width="1280px">
-                                        <template>
-                                            <v-data-table :headers="headers" :items="customer" class="elevation-1">
-                                                <template v-slot:items="props">
-                                                    <td class="text-center">{{props.item.code}}</td>
-                                                    <td>{{props.item.name}}</td>
-                                                    <td>{{props.item.address}}</td>
-                                                    <td>{{props.item.contact}}</td>
-                                                    <td class="text-xs-left">{{props.item.tel}}</td>
-                                                    <td hidden class="text-xs-left">{{props.item.gp}}</td>
-                                                    <td hidden class="text-xs-left">{{props.item.dc}}</td>
-                                                </template>
-                                                <template v-slot:[`item.actions`]="{ on, attrs }">
-                                                    <v-icon @click="searchItem(props.item)" color="primary" dark v-bind="attrs" v-on="on">
+                        <v-dialog v-model="dialogCust" max-width="1280px">
+                            <template>
+                                <v-data-table :headers="headers" :items="customer" class="elevation-1">
+                                    <template v-slot:items="props">
+                                        <td class="text-center">{{ props.item.code }}</td>
+                                        <td>{{ props.item.name }}</td>
+                                        <td>{{ props.item.address }}</td>
+                                        <td>{{ props.item.contact }}</td>
+                                        <td class="text-xs-left">{{ props.item.tel }}</td>
+                                        <td hidden class="text-xs-left">{{ props.item.gp }}</td>
+                                        <td hidden class="text-xs-left">{{ props.item.dc }}</td>
+                                    </template>
+                                    <!-- <template v-slot:[`item.actions`]="props">
+                                                    <v-icon @click="searchItem(props.item)" color="primary" dark>
                                                         mdi-check-circle
                                                     </v-icon>
-                                                </template>
-                                            </v-data-table>
-                                        </template>
-                                      </v-dialog>                   
+                                                </template> -->
+                                    <template v-slot:item.actions="props">
+                                        <v-icon class="mr-1"
+                                            @click="searchItem(props.item)">mdi-check-circle-outline</v-icon>
+                                    </template>
+                                </v-data-table>
+                            </template>
+                        </v-dialog>
                         <!-- Customer info from the search in database -->
-                                <div>
-                                    <v-layout>
-                                        <v-flex xs2 text-xs-right my-1>Customer code:</v-flex>
-                                        <v-flex xs6>
-                                            <input type="text" class="inputCust" size="20" v-model="code" ref="custCode" disabled>
-                                        </v-flex>
-                                    </v-layout>
-                                    <v-layout>
-                                        <v-flex xs2 text-xs-right my-1>Customer name:</v-flex>
-                                        <v-flex xs6>
-                                            <input type="text" class="inputCust" size="35" v-model="name">
-                                        </v-flex>
-                                    </v-layout>
-                                    <v-layout>
-                                        <v-flex xs2 text-xs-right my-1>Address:</v-flex>
-                                        <v-flex xs8>
-                                            <input type="text" class="inputCust" size="65" v-model="address" ref="focusAddress">
-                                        </v-flex>
-                                    </v-layout>
-                                    <v-layout>
-                                        <v-flex xs2 text-xs-right my-1>PO ref#:</v-flex>
-                                        <v-flex xs5>
-                                            <input type="text" class="inputCust" size="30" v-model="poRef">
-                                        </v-flex>
-                                    </v-layout>
-                                    <v-layout>
-                                        <v-flex xs2 text-xs-right my-1>Contact name:</v-flex>
-                                        <v-flex xs5>
-                                            <input type="text" class="inputCust" size="25" v-model="contact">
-                                        </v-flex>
-                                    </v-layout>
-                                    <v-layout>
-                                        <v-flex xs2 text-xs-right my-1>Tel:</v-flex>
-                                        <v-flex xs5>
-                                            <input type="text" class="inputCust" autocomplete="off" v-model="tel">
-                                        </v-flex>
-                                    </v-layout>
-                                </div>
-                            <br>
+                        <div>
+                            <v-layout>
+                                <v-flex xs2 text-xs-right my-1>Customer code:</v-flex>
+                                <v-flex xs6>
+                                    <input type="text" class="inputCust" size="20" v-model="code" ref="custCode"
+                                        disabled>
+                                </v-flex>
+                            </v-layout>
+                            <v-layout>
+                                <v-flex xs2 text-xs-right my-1>Customer name:</v-flex>
+                                <v-flex xs6>
+                                    <input type="text" class="inputCust" size="35" v-model="name">
+                                </v-flex>
+                            </v-layout>
+                            <v-layout>
+                                <v-flex xs2 text-xs-right my-1>Address:</v-flex>
+                                <v-flex xs8>
+                                    <input type="text" class="inputCust" size="65" v-model="address" ref="focusAddress">
+                                </v-flex>
+                            </v-layout>
+                            <v-layout>
+                                <v-flex xs2 text-xs-right my-1>PO ref#:</v-flex>
+                                <v-flex xs5>
+                                    <input type="text" class="inputCust" size="30" v-model="poRef">
+                                </v-flex>
+                            </v-layout>
+                            <v-layout>
+                                <v-flex xs2 text-xs-right my-1>Contact name:</v-flex>
+                                <v-flex xs5>
+                                    <input type="text" class="inputCust" size="25" v-model="contact">
+                                </v-flex>
+                            </v-layout>
+                            <v-layout>
+                                <v-flex xs2 text-xs-right my-1>Tel:</v-flex>
+                                <v-flex xs5>
+                                    <input type="text" class="inputCust" autocomplete="off" v-model="tel">
+                                </v-flex>
+                            </v-layout>
+                        </div>
+                        <br>
 
                         <!-- Add new product button -->
                         <div v-if="showOpenDetail">
                             <v-flex xs6 sm4 md3>
                                 <v-tooltip right>
                                     <template v-slot:activator="{ on }">
-                                        <v-btn fab small color="primary" @click="openDetail()" v-on="on"><v-icon dark>mdi-plus</v-icon></v-btn>
+                                        <v-btn fab small color="primary" @click="openDetail()" v-on="on"><v-icon
+                                                dark>mdi-plus</v-icon></v-btn>
                                     </template>
                                     <span>Add products</span>
                                 </v-tooltip>
@@ -157,30 +165,37 @@
                                                         <v-card-title><span class="headline">List
                                                                 product</span></v-card-title>
                                                         <v-card-text>
-                                                    <v-data-table :headers="headerProCode" :items="listProduct" class="elevation-1">
-                                                        <template v-slot:items="props">
-                                                            <td class="text-center">{{props.item.Code}}</td>
-                                                            <td class="text-center">{{props.item.NameMM}}</td>
-                                                            <td class="text-center">
-                                                                {{props.item.PriceMM.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,
-                                                                ",")}}</td>
-                                                            <td class="text-center">
-                                                                <v-tooltip left>
-                                                                    <template v-slot:[`item.actions`]="{ on, attrs }">
-                                                                        <v-icon @click="selectProCode
-                                                                        (props.item)" color="primary" dark v-bind="attrs" v-on="on">
-                                                                            mdi-check-circle
-                                                                        </v-icon>
-                                                                    </template>
-                                                                    <span>Choose this Product</span>
-                                                                </v-tooltip>
-                                                            </td>
-                                                        </template>
-                                                    </v-data-table>
-                                                    </v-card-text>
+                                                            <v-data-table :headers="headerProCode" :items="listProduct"
+                                                                class="elevation-1">
+                                                                <template v-slot:items="props">
+                                                                    <td class="text-center">{{ props.item.Code }}</td>
+                                                                    <td class="text-center">{{ props.item.NameMM }}</td>
+                                                                    <td class="text-center">
+                                                                        {{
+                                                                            props.item.PriceMM.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g,
+                                                                                ",")
+                                                                        }}</td>
+                                                                </template>
+                                                                <template v-slot:item.actions="props">
+                                                                    <v-icon class="mr-1"
+                                                                        @click="selectProCode(props.item)">mdi-check-circle-outline</v-icon>
+                                                                </template>
+                                                                <!-- <v-tooltip left>
+                                                                        <template v-slot:[`item.actions`]="{ on, attrs }">
+                                                                            <v-icon @click="selectProCode
+                                                                            (props.item)" color="primary" dark
+                                                                                v-bind="attrs" v-on="on">
+                                                                                mdi-check-circle
+                                                                            </v-icon>
+                                                                        </template>
+                                                                        <span>Choose this Product</span>
+                                                                    </v-tooltip> -->
+                                                                <!-- </template> -->
+                                                            </v-data-table>
+                                                        </v-card-text>
                                                     </v-card>
                                                 </v-dialog>
-                                                
+
                                             </v-flex>
                                             <v-flex>
                                                 <v-text-field label="Description" v-model="prod.Name"
@@ -229,7 +244,7 @@
                                                 </font>
                                             </v-flex>
                                         </v-layout>
-                                        <v-layout v-if="showGPandDC=true">
+                                        <v-layout v-if="showGPandDC = true">
                                             <v-flex>
                                                 <v-flex text-xs-right>
                                                     <font size=2>GP(%):</font>
@@ -261,10 +276,10 @@
                                                 <v-flex>
                                                     <font size=3>
                                                         <vue-numeric class="line" separator="," :precision="2"
-                                                            :value="prod.amt=prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) 
-                                                            - prod.shockprice - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice) * (prod.gp/100))
-                                                            - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice
-                                                            - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent/100)) - prod.shockprice) * (prod.gp/100))) * (prod.dc/100))"></vue-numeric>
+                                                            :value="prod.amt = prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent / 100))
+                                                        - prod.shockprice - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent / 100)) - prod.shockprice) * (prod.gp / 100))
+                                                        - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent / 100)) - prod.shockprice
+                                                            - ((prod.Num * prod.Price - ((prod.Num * prod.Price) * (prod.percent / 100)) - prod.shockprice) * (prod.gp / 100))) * (prod.dc / 100))"></vue-numeric>
                                                     </font>
                                                 </v-flex>
                                             </v-flex>
@@ -312,9 +327,9 @@
                             <hr>
 
                             <!-- Order Detail -->
-                            <v-layout v-for="(item,i) in orderDetails" :key="i" collapse>
+                            <v-layout v-for="(item, i) in orderDetails" :key="i" collapse>
                                 <v-flex my-3 pa-2 padDing class="txtCenter">
-                                    <font size=3>{{i+1}}</font>
+                                    <font size=3>{{ i+ 1}}</font>
                                 </v-flex>
                                 <v-flex xs1 pl-3>
                                     <v-text-field v-model="item.Code" ref="focusCode" readonly tabindex="-1"
@@ -347,7 +362,7 @@
                                 </v-flex>
                                 <v-flex xs2 center my-2>
                                     <v-btn fab small color="primary" @click="addDetail"
-                                        :disabled="i != orderDetails.length -1">
+                                        :disabled="i != orderDetails.length - 1">
                                         <v-icon dark>mdi-plus</v-icon>
                                     </v-btn>
                                     <v-btn fab small color="error" @click="delDetail(item)" tabindex="-1">
@@ -378,14 +393,15 @@
                                             <v-flex xs5>
                                                 <v-menu v-model="menushipDate" :close-on-content-click="false"
                                                     :nudge-right="40" transition="scale-transition" offset-y
-                                                     min-width="290px">
+                                                    min-width="290px">
                                                     <template v-slot:activator="{ on }">
                                                         <v-text-field v-model="shipDate" label="Shipping Date:"
-                                                            prepend-icon="mdi-calendar" readonly v-on="on"></v-text-field>
+                                                            prepend-icon="mdi-calendar" readonly
+                                                            v-on="on"></v-text-field>
                                                     </template>
                                                     <v-date-picker v-model="shipDate"
                                                         @input="menushipDate = false"></v-date-picker>
-                                                  
+
                                                 </v-menu>
                                             </v-flex>
                                         </v-layout>
@@ -414,7 +430,7 @@
                                                 <v-flex xs4 px-2>
                                                     <v-menu v-model="menuPayDateOrder" :close-on-content-click="false"
                                                         :nudge-right="40" transition="scale-transition" offset-y
-                                                         min-width="290px">
+                                                        min-width="290px">
                                                         <template v-slot:activator="{ on }">
                                                             <v-text-field v-model="payDateOrder" label="Date:"
                                                                 prepend-icon="mdi-calendar" readonly v-on="on"
@@ -559,8 +575,8 @@ export default {
             showSearchProCode: false,
             headerProCode: [
                 { text: 'Product code', value: 'Code' },
-                { text: 'Product name', sortable: false, },
-                { text: 'Price', align: 'right', sortable: false, },
+                { text: 'Product name', sortable: false, value: 'NameMM' },
+                { text: 'Price', align: 'right', sortable: false, value: 'PriceMM' },
                 { text: '', value: 'actions', sortable: false },
             ],
             itemDisc: ['Percent(%)', 'Shock Price(MMK)'],
@@ -586,7 +602,7 @@ export default {
 
             headers: [
                 { text: 'Customer code', align: 'center', value: 'code' },
-                { text: 'Customer name', sortable: false, align: 'center', value: 'name'},
+                { text: 'Customer name', sortable: false, align: 'center', value: 'name' },
                 { text: 'Address', sortable: false, align: 'center', value: 'address' },
                 { text: 'Contact name', sortable: false, align: 'center', value: 'contact' },
                 { text: 'Telephone number', sortable: false, align: 'center', value: 'tel' },
@@ -689,33 +705,33 @@ export default {
                         let curDoc = doc.data()
                         app.customer.push(curDoc)
                     })
-                        if (app.customer.length == 0) {
-                            alert("This customer code is not in the system.")
-                            this.searchCode = ''
-                            this.dialogCust = false
-                            this.searchCode = ''
-                            this.code = ''
-                            this.name = ''
-                            this.address = ''
-                            this.poRef = ''
-                            this.contact = ''
-                            this.tel = ''
-                            this.$refs.focusSearchCode.focus()
-                        }
-                        else {
-                            this.searchCode = ''
-                            this.dialogCust = true
-                            this.code = ''
-                            this.name = ''
-                            this.address = ''
-                            this.poRef = ''
-                            this.contact = ''
-                            this.tel = ''
-                        }
-                    })
-                    // .catch(function (error) {
-                    //     console.log("Error getting documents: ", error)
-                    // })
+                    if (app.customer.length == 0) {
+                        alert("This customer code is not in the system.")
+                        this.searchCode = ''
+                        this.dialogCust = false
+                        this.searchCode = ''
+                        this.code = ''
+                        this.name = ''
+                        this.address = ''
+                        this.poRef = ''
+                        this.contact = ''
+                        this.tel = ''
+                        this.$refs.focusSearchCode.focus()
+                    }
+                    else {
+                        this.searchCode = ''
+                        this.dialogCust = true
+                        this.code = ''
+                        this.name = ''
+                        this.address = ''
+                        this.poRef = ''
+                        this.contact = ''
+                        this.tel = ''
+                    }
+                })
+                // .catch(function (error) {
+                //     console.log("Error getting documents: ", error)
+                // })
             }
         },
 
@@ -842,12 +858,12 @@ export default {
             this.prod.shockprice = 0
             const db = getFirestore()
             const docRef = await getDocs(collection(db, "customer"), where("code", "==", this.code));
-                docRef.forEach(() => {
-                    docRef.forEach(doc => {
-                        this.prod.gp = doc.data().gp
-                        this.prod.dc = doc.data().dc
-                    })
+            docRef.forEach(() => {
+                docRef.forEach(doc => {
+                    this.prod.gp = doc.data().gp
+                    this.prod.dc = doc.data().dc
                 })
+            })
             this.$nextTick(() => { this.$refs.focusProdCode.focus() })
         },
 
@@ -861,7 +877,7 @@ export default {
             }
             else {
 
-                const db = getFirestore()    
+                const db = getFirestore()
                 const docRef = doc(db, "code", "productcode");
                 const docSnap = query(collection(docRef, "proCode"));
                 const q = query(docSnap, orderBy('Code'), startAt(this.prod.Code), endAt(this.prod.Code + "\uf8ff"));
@@ -870,16 +886,16 @@ export default {
                     snapshot.docs.map((doc) => {
                         app.listProduct.push(doc.data())
                         // console.log(app.listProduct)
-                          })
-                        if (app.listProduct.length == 0) {
-                            app.showSearchProCode = false
-                            alert("This product code is not in the system......")
-                            app.item = []
-                        }
-                        else {
-                            app.showSearchProCode = true
-                        }
                     })
+                    if (app.listProduct.length == 0) {
+                        app.showSearchProCode = false
+                        alert("This product code is not in the system......")
+                        app.item = []
+                    }
+                    else {
+                        app.showSearchProCode = true
+                    }
+                })
             }
         },
 
@@ -983,125 +999,14 @@ export default {
                 // let DocRef = db.collection("counter").doc(year)
                 // db.collection("order").where("orderNo", "==", this.orderType.substr(2) + this.orderNo).get()
                 let DocRef = doc(collection(db, "counter"), year);
+                console.log(DocRef)
                 const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.orderType.substr(2) + this.orderNo));
                 docRef.forEach(() => {
-                        app.checkOrder = []
-                        docRef.forEach(doc => {
-                            let curDoc = doc.data().orederNo
-                            app.checkOrder.push(curDoc)
-                        })
-                        if (app.checkOrder.length >= 1) {
-                            alert("This order no is already in the system.\nPlease try again.")
-                            app.changeOrderNo()
-                        }
-                        else {
-                            db.runTransaction((transaction) => {
-                                return transaction.get(DocRef).then((Doc) => {
-                                    if (!Doc.exists) {
-                                        throw "Document does not exist!"
-                                    }
-                                    else {
-                                        let newOrderNo = Doc.data()[app.orderType] + 1
-                                        transaction.update(DocRef, {
-                                            [app.orderType]: newOrderNo
-                                        })
-                                    }
-                                })
-                            })
-                                .then(() => {
-                                    let countPayment = []
-
-                                    // add data to order and cashbook
-                                    const db = getFirestore()
-                                    let batch = db.batch()
-                                    if (app.statusDown == 'Down payment') {
-                                        countPayment.push({ payMent: app.payMent, down: app.downAmt, date: app.payDateOrder })
-                                        batch.set(collection(db, 'cashReceiBook').doc(), {
-                                            date: app.payDateOrder + " " + app.subTime,
-                                            type: 'SO-',
-                                            refNo: app.orderType.substr(2) + app.orderNo,
-                                            custCode: app.code,
-                                            desc: 'Down payment',
-                                            Amt: app.downAmt + app.disc,
-                                            disc: app.disc,
-                                            payMent: app.payMent,
-                                            rvNo: '',
-                                        })
-                                        batch.set(collection(db, 'order').doc(), {
-                                            orderNo: app.orderType.substr(2) + app.orderNo,
-                                            orderDate: app.orderDate + " " + app.subTime,
-                                            code: app.code,
-                                            name: app.name,
-                                            address: app.address,
-                                            poRef: app.poRef,
-                                            contact: app.contact,
-                                            tel: app.tel,
-                                            detail: app.orderDetails,
-                                            disc: app.disc,
-                                            net: app.sumNet,
-                                            shipAdd: app.shipAdd,
-                                            district: app.district,
-                                            shipDate: app.shipDate,
-                                            remark: app.remark,
-                                            downBalance: app.downAmt,
-                                            countPayment: countPayment,
-                                            balance: app.balance,
-                                            status: 'Open',
-                                            printed: 0
-                                        })
-                                    }
-                                    else {
-                                        batch.set(collection(db, 'order').doc(), {
-                                            orderNo: app.orderType.substr(2) + app.orderNo,
-                                            orderDate: app.orderDate + " " + app.subTime,
-                                            code: app.code,
-                                            name: app.name,
-                                            address: app.address,
-                                            poRef: app.poRef,
-                                            contact: app.contact,
-                                            tel: app.tel,
-                                            detail: app.orderDetails,
-                                            disc: app.disc,
-                                            net: app.sumNet,
-                                            shipAdd: app.shipAdd,
-                                            district: app.district,
-                                            shipDate: app.shipDate,
-                                            remark: app.remark,
-                                            downBalance: app.downAmt,
-                                            countPayment: countPayment,
-                                            balance: app.balance,
-                                            status: 'Open',
-                                            printed: 0
-                                        })
-                                    }
-
-                                    batch.commit().then(() => {
-                                        alert("Order successfully.....")
-                                        app.showPrint = true
-                                        // app.clearOrder()
-                                    })
-                                        // .catch((error) => {
-                                        //     console.log(error)
-                                        //     alert("Order failed.....")
-                                        // })
-                                })
-                                // .catch((error) => {
-                                //     console.log("Transaction failed: ", error)
-                                // })
-                        }
-                    })
-            }
-        },
-
-        async test() {
-            let app = this
-            const db = getFirestore()
-            const docRef = await getDocs (collection(db, "order"), where("orderNo", "==", "F190035"));
-                // db.collection("order").where("orderNo", "==", this.orderType.substr(2)+this.orderNo).get()
-                 docRef.forEach(() => {
                     app.checkOrder = []
                     docRef.forEach(doc => {
+                        // console.log(doc.data())
                         let curDoc = doc.data().orederNo
+                        // console.log(curDoc)
                         app.checkOrder.push(curDoc)
                     })
                     if (app.checkOrder.length >= 1) {
@@ -1109,9 +1014,123 @@ export default {
                         app.changeOrderNo()
                     }
                     else {
-                        alert("Success.")
+                        db.runTransaction((transaction) => {
+                            return transaction.get(DocRef).then((Doc) => {
+                                if (!Doc.exists) {
+                                    throw "Document does not exist!"
+                                }
+                                else {
+                                    let newOrderNo = Doc.data()[app.orderType] + 1
+                                    transaction.update(DocRef, {
+                                        [app.orderType]: newOrderNo
+                                    })
+                                }
+                            })
+                        })
+                            .then(() => {
+                                let countPayment = []
+
+                                // add data to order and cashbook
+                                const db = getFirestore()
+                                let batch = db.batch()
+                                if (app.statusDown == 'Down payment') {
+                                    countPayment.push({ payMent: app.payMent, down: app.downAmt, date: app.payDateOrder })
+                                    batch.set(collection(db, 'cashReceiBook').doc(), {
+                                        date: app.payDateOrder + " " + app.subTime,
+                                        type: 'SO-',
+                                        refNo: app.orderType.substr(2) + app.orderNo,
+                                        custCode: app.code,
+                                        desc: 'Down payment',
+                                        Amt: app.downAmt + app.disc,
+                                        disc: app.disc,
+                                        payMent: app.payMent,
+                                        rvNo: '',
+                                    })
+                                    batch.set(collection(db, 'order').doc(), {
+                                        orderNo: app.orderType.substr(2) + app.orderNo,
+                                        orderDate: app.orderDate + " " + app.subTime,
+                                        code: app.code,
+                                        name: app.name,
+                                        address: app.address,
+                                        poRef: app.poRef,
+                                        contact: app.contact,
+                                        tel: app.tel,
+                                        detail: app.orderDetails,
+                                        disc: app.disc,
+                                        net: app.sumNet,
+                                        shipAdd: app.shipAdd,
+                                        district: app.district,
+                                        shipDate: app.shipDate,
+                                        remark: app.remark,
+                                        downBalance: app.downAmt,
+                                        countPayment: countPayment,
+                                        balance: app.balance,
+                                        status: 'Open',
+                                        printed: 0
+                                    })
+                                }
+                                else {
+                                    batch.set(collection(db, 'order').doc(), {
+                                        orderNo: app.orderType.substr(2) + app.orderNo,
+                                        orderDate: app.orderDate + " " + app.subTime,
+                                        code: app.code,
+                                        name: app.name,
+                                        address: app.address,
+                                        poRef: app.poRef,
+                                        contact: app.contact,
+                                        tel: app.tel,
+                                        detail: app.orderDetails,
+                                        disc: app.disc,
+                                        net: app.sumNet,
+                                        shipAdd: app.shipAdd,
+                                        district: app.district,
+                                        shipDate: app.shipDate,
+                                        remark: app.remark,
+                                        downBalance: app.downAmt,
+                                        countPayment: countPayment,
+                                        balance: app.balance,
+                                        status: 'Open',
+                                        printed: 0
+                                    })
+                                }
+
+                                batch.commit().then(() => {
+                                    alert("Order successfully.....")
+                                    app.showPrint = true
+                                    // app.clearOrder()
+                                })
+                                // .catch((error) => {
+                                //     console.log(error)
+                                //     alert("Order failed.....")
+                                // })
+                            })
+                        // .catch((error) => {
+                        //     console.log("Transaction failed: ", error)
+                        // })
                     }
                 })
+            }
+        },
+
+        async test() {
+            let app = this
+            const db = getFirestore()
+            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", "F190035"));
+            // db.collection("order").where("orderNo", "==", this.orderType.substr(2)+this.orderNo).get()
+            docRef.forEach(() => {
+                app.checkOrder = []
+                docRef.forEach(doc => {
+                    let curDoc = doc.data().orederNo
+                    app.checkOrder.push(curDoc)
+                })
+                if (app.checkOrder.length >= 1) {
+                    alert("This order no is already in the system.\nPlease try again.")
+                    app.changeOrderNo()
+                }
+                else {
+                    alert("Success.")
+                }
+            })
         },
 
         // Change orderNo value when select the ordertype 
@@ -1121,14 +1140,14 @@ export default {
             let subYear = new Date().toISOString().substr(2, 2)
             const db = getFirestore()
             const docRef = await getDocs(collection(db, "counter"), year);
-                docRef.forEach((doc) => {
-                    let typeDoc = doc.data()[this.orderType] + 1
-                    if (typeDoc <= 9999) {
-                        typeDoc = ("000" + typeDoc).slice(-4)
-                    }
-                    this.orderNo = subYear + typeDoc
-                    this.$refs.searchName.focus()
-                })
+            docRef.forEach((doc) => {
+                let typeDoc = doc.data()[this.orderType] + 1
+                if (typeDoc <= 9999) {
+                    typeDoc = ("000" + typeDoc).slice(-4)
+                }
+                this.orderNo = subYear + typeDoc
+                this.$refs.searchName.focus()
+            })
         },
 
         // Claer web page
@@ -1205,25 +1224,25 @@ export default {
             return this.sumNet - this.downAmt
         },
     },
-   async mounted() {
+    async mounted() {
         this.$refs.searchName.focus()
         let app = this
         const db = getFirestore()
         const docRef = await getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
-       docRef.forEach(doc => {
-           app.itemPayMent = []
-           let readDoc = doc.data().accName
-           app.itemPayMent.push(readDoc)
-           // payment.forEach(doc => {
-           //     let readDoc = doc.data().accName
-           //     app.itemPayMent.push(readDoc)
-           // })
-           })
-            const docSnap = await getDocs(collection(db, "code"));
-            docSnap.forEach((color) => {
-                app.itemFrame.push(color.data().frame)
-                app.itemFront.push(color.data().front)
-            })
+        docRef.forEach(doc => {
+            app.itemPayMent = []
+            let readDoc = doc.data().accName
+            app.itemPayMent.push(readDoc)
+            // payment.forEach(doc => {
+            //     let readDoc = doc.data().accName
+            //     app.itemPayMent.push(readDoc)
+            // })
+        })
+        const docSnap = await getDocs(collection(db, "code"));
+        docSnap.forEach((color) => {
+            app.itemFrame.push(color.data().frame)
+            app.itemFront.push(color.data().front)
+        })
     }
 }
 </script>
