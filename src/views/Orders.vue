@@ -517,7 +517,7 @@
 </template>
 <script>
 
-import { collection, getDocs, where, getFirestore, query, orderBy, onSnapshot, startAt, endAt, doc } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, query, orderBy, onSnapshot, startAt, endAt, doc, runTransaction, writeBatch } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -996,46 +996,46 @@ export default {
                 let app = this
                 let year = new Date().toISOString().substr(0, 4)
                 const db = getFirestore()
-                // let DocRef = db.collection("counter").doc(year)
-                // db.collection("order").where("orderNo", "==", this.orderType.substr(2) + this.orderNo).get()
                 let DocRef = doc(collection(db, "counter"), year);
-                console.log(DocRef)
-                const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.orderType.substr(2) + this.orderNo));
-                docRef.forEach(() => {
+                const q = query(collection(db, "order"), where("orderNo", "==", this.orderType.substr(2) + this.orderNo));
+                onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
                     app.checkOrder = []
-                    docRef.forEach(doc => {
-                        // console.log(doc.data())
+                    snapshot.forEach((doc) => {
                         let curDoc = doc.data().orederNo
-                        // console.log(curDoc)
+                        console.log(doc.data())
+                        console.log(curDoc)
                         app.checkOrder.push(curDoc)
+
                     })
                     if (app.checkOrder.length >= 1) {
                         alert("This order no is already in the system.\nPlease try again.")
                         app.changeOrderNo()
                     }
                     else {
-                        db.runTransaction((transaction) => {
-                            return transaction.get(DocRef).then((Doc) => {
-                                if (!Doc.exists) {
+                        // try {
+                            runTransaction(db, async (transaction) => {
+                                const sfDoc = await transaction.get(DocRef);
+                                if (!sfDoc.exists()) {
                                     throw "Document does not exist!"
                                 }
                                 else {
-                                    let newOrderNo = Doc.data()[app.orderType] + 1
+                                    let newOrderNo = sfDoc.data()[app.orderType] + 1
                                     transaction.update(DocRef, {
                                         [app.orderType]: newOrderNo
-                                    })
+                                    });
+                                    console.log("Transaction successfully committed!");
                                 }
-                            })
                         })
-                            .then(() => {
+                            // .then(() => {
+                         try {
                                 let countPayment = []
-
                                 // add data to order and cashbook
                                 const db = getFirestore()
-                                let batch = db.batch()
+                                let batch = writeBatch(db)
                                 if (app.statusDown == 'Down payment') {
                                     countPayment.push({ payMent: app.payMent, down: app.downAmt, date: app.payDateOrder })
-                                    batch.set(collection(db, 'cashReceiBook').doc(), {
+                                    const docRef = doc(db, "cashReceiBook", "cashReceiBook");
+                                    batch.set(docRef, {
                                         date: app.payDateOrder + " " + app.subTime,
                                         type: 'SO-',
                                         refNo: app.orderType.substr(2) + app.orderNo,
@@ -1046,7 +1046,8 @@ export default {
                                         payMent: app.payMent,
                                         rvNo: '',
                                     })
-                                    batch.set(collection(db, 'order').doc(), {
+                                    const doRef = doc(db, "order", "order");
+                                    batch.set(doRef, {
                                         orderNo: app.orderType.substr(2) + app.orderNo,
                                         orderDate: app.orderDate + " " + app.subTime,
                                         code: app.code,
@@ -1070,7 +1071,8 @@ export default {
                                     })
                                 }
                                 else {
-                                    batch.set(collection(db, 'order').doc(), {
+                                    const doRef = doc(db, "order", "order");
+                                    batch.set(doRef, {
                                         orderNo: app.orderType.substr(2) + app.orderNo,
                                         orderDate: app.orderDate + " " + app.subTime,
                                         code: app.code,
@@ -1099,13 +1101,9 @@ export default {
                                     app.showPrint = true
                                     // app.clearOrder()
                                 })
-                                // .catch((error) => {
-                                //     console.log(error)
-                                //     alert("Order failed.....")
-                                // })
-                            })
-                        // .catch((error) => {
-                        //     console.log("Transaction failed: ", error)
+                            }catch (e) {
+                                console.log("Transaction failed: ", e);
+                            }
                         // })
                     }
                 })
@@ -1138,6 +1136,8 @@ export default {
             // let app = this
             let year = new Date().toISOString().substr(0, 4)
             let subYear = new Date().toISOString().substr(2, 2)
+            // let year = new Date().toISOString().substring(0, 4)
+            // let subYear = new Date().toISOString().substring(2, 2)
             const db = getFirestore()
             const docRef = await getDocs(collection(db, "counter"), year);
             docRef.forEach((doc) => {
@@ -1146,6 +1146,7 @@ export default {
                     typeDoc = ("000" + typeDoc).slice(-4)
                 }
                 this.orderNo = subYear + typeDoc
+                // console.log(this.orderNo)
                 this.$refs.searchName.focus()
             })
         },
