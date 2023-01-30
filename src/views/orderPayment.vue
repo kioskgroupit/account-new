@@ -53,7 +53,7 @@
                                             min-width="290px">
                                             <template v-slot:activator="{ on }">
                                                 <v-text-field v-model="item.date" color="white" label="Date:"
-                                                    prepend-icon="event" readonly v-on="on" dark
+                                                    prepend-icon="mdi-calendar" readonly v-on="on" dark
                                                     :disabled="item.payMent != '' && item.down != 0 && item.date.length == 10"></v-text-field>
                                             </template>
                                             <v-date-picker v-model="item.date" @input="item.menuPayDateOrder = false"
@@ -85,7 +85,7 @@
                                             min-width="290px" readonly>
                                             <template v-slot:activator="{ on }">
                                                 <v-text-field v-model="orderDate" label="Date:" prepend-icon="mdi-calendar"
-                                                    readonly></v-text-field>
+                                                    readonly v-on="on"></v-text-field>
                                             </template>
                                             <v-date-picker v-model="orderDate" @input="menuorderDate = false"
                                                 :min="nowDate" readonly></v-date-picker>
@@ -222,7 +222,7 @@
                                                          min-width="290px" readonly>
                                                         <template v-slot:activator="{ on }">
                                                             <v-text-field v-model="shipDate" label="Date:"
-                                                                prepend-icon="mdi-calendar" readonly></v-text-field>
+                                                                prepend-icon="mdi-calendar" readonly v-on="on"></v-text-field>
                                                         </template>
                                                         <v-date-picker v-model="shipDate" @input="menushipDate = false"
                                                             :min="nowDate" readonly></v-date-picker>
@@ -303,7 +303,7 @@
 
 <script>
 
-import { collection, getDocs, where, getFirestore, orderBy, doc, QuerySnapshot } from "firebase/firestore";
+import { collection, where, getFirestore, query, onSnapshot, writeBatch, doc } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -362,24 +362,30 @@ export default {
         }
     },
     methods: {
-
+        
         // Search info from orderNo in order database
-        async searchOrderNo() {
+        searchOrderNo(){
             this.countPayment = []
             const db = getFirestore()
-            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.searchOrder));
-            docRef.forEach(docs=> {
-                if (docs.empty) {
+            const q = query(collection(db, "order"), where("orderNo", "==", this.searchOrder.substr(0, 7)));
+            onSnapshot(q, (snapshot) => {
+                snapshot.forEach((querySnapshot) => {
+            // console.log(querySnapshot.data())
+            //     })
+            // })
+            // db.collection("order").where("orderNo", "==", this.searchOrder.substr(0,7)).get()
+            // .then(querySnapshot=> {
+                if(querySnapshot.empty){
                     alert("Order No is not correct...\nPlease Try again")
-                    // this.$refs.orderNo.focus()
-                } else {
+                    this.$refs.orderNo.focus()
+                }else{
                     this.showDetails = true
-                    let doc = docs.data()
-                    // let docId = querySnapshot.docs[0].id
-                    // this.orderId = docId     
+                    let doc = querySnapshot.data()
+                    let docId = querySnapshot.id
+
+                    this.orderId = docId
                     this.orderNo = doc.orderNo
-                    // this.orderDate = doc.orderDate.substr(0, 10)
-                    this.orderDate = doc.orderDate
+                    this.orderDate = doc.orderDate.substr(0,10)
                     this.code = doc.code
                     this.name = doc.name
                     this.address = doc.address
@@ -395,13 +401,14 @@ export default {
                     this.disc = doc.disc
                     this.downBalance = doc.downBalance
                     this.balance = doc.balance
-                    // this.countPayment.push({ payMent: '', down: 0, date: '' })
+                    this.countPayment.push({payMent: '',down: 0, date: ''})
                 }
+              })
             })
-             const docRe = await getDocs(collection(db, "chartAccount"), where("cash", "==", "Y"));
-             docRe.forEach(() => {
+            const p = query(collection(db, "chartAccount"), where("cash", "==", "Y"));
+            onSnapshot(p, (snapshot) => {
                 this.itemPayMent = []
-                docRef.forEach(doc => {
+                snapshot.forEach((doc) => {
                     let readDoc = doc.data().accName
                     this.itemPayMent.push(readDoc)
                 })
@@ -414,34 +421,37 @@ export default {
             let haveError = false
             let msg = ''
             let i = this.countPayment.length - 1
-            if (this.countPayment[i].payMent == '') {
+            if(this.countPayment[i].payMent == ''){
                 haveError = true
                 msg = "Please select payment type."
             }
-            if (this.countPayment[i].down == 0) {
+            if(this.countPayment[i].down == 0){
                 haveError = true
                 msg += "\nPlease enter the amount of down payment."
             }
-            if (this.countPayment[i].date == '') {
+            if(this.countPayment[i].date == ''){
                 haveError = true
                 msg += "\nPlease enter date."
             }
-            if (haveError) {
+            if(haveError){
                 alert(msg)
             }
             else {
+                // try{
                 let i = app.countPayment.length - 1
-                app.countPayment.forEach(rec => {
+                app.countPayment.forEach(rec=>{
                     delete rec.menuPayDateOrder
                 })
-                app.countPayment.slice(i).forEach(rec => {
+                app.countPayment.slice(i).forEach(rec=>{
                     app.lastPayMent = rec.payMent
                     app.lastDown = rec.down
                     app.lastDate = rec.date
                 })
                 const db = getFirestore()
-                let batch = db.batch()
-                batch.set(db.collection('cashReceiBook').doc(), {
+                let batch = writeBatch(db)
+                const doRef = doc(db, "cashReceiBook", "cashReceiBook");
+                batch.set(doRef, {
+                // batch.set(db.collection('cashReceiBook').doc(), {
                     date: app.lastDate + " " + app.subTime,
                     type: 'SO-',
                     refNo: app.orderNo,
@@ -452,51 +462,60 @@ export default {
                     payMent: app.lastPayMent,
                     rvNo: '',
                 })
-                batch.update(db.collection('order').doc(app.orderId), {
+                const docRef = doc(db, "order", app.orderId);
+                batch.update(docRef, {
+                // batch.update(db.collection('order').doc(app.orderId), {
                     balance: app.balance - app.lastDown,
                     countPayment: app.countPayment,
                     downBalance: app.downBalance + app.lastDown
                 })
-                batch.commit().then(() => {
+            try {   batch.commit().then(() => {
                     app.checkProdInOrder()
                     app.clearOrder()
                     alert("Successful.")
                 })
-                    .catch(error => {
-                        console.log(error)
-                        alert("Failed.\nPlease contact the system administrator : addPayment() has error")
-                    })
+                }catch (e) {
+                console.log("Transaction failed: ", e);
+                }
+                // .catch(error => {
+                //     console.log(error)
+                //     alert("Failed.\nPlease contact the system administrator : addPayment() has error")
+                // })
             }
         },
 
         // Check the product. If completed, the order will change status to Closed
-       async checkProdInOrder() {
+        checkProdInOrder(){
             // let app = this
             const db = getFirestore()
-           const docRef = await getDocs(collection(db, "order").doc(this.orderId));
-                docRef.forEach(checkOrder => {
-                    let doc = checkOrder.data()
-                    let newOrderDetail = doc.detail
-                    let detialCheck = []
-                    newOrderDetail.forEach(item => {
-                        if (item.numSend < item.num) {
-                            item.num = item.num - item.numSend
-                            detialCheck.push(item)
-                        }
-                    })
-                    detialCheck.forEach(product => {
-                        product.maxNum = product.num
-                    })
-                    if (detialCheck.length == 0) {
-                        db.collection("order").doc(this.orderId).update({
-                            status: "Closed"
-                        })
+            const q = doc(db, "order", this.orderId);
+            onSnapshot(q, (checkOrder) => {
+                // snapshot.docs((checkOrder) => {
+            // db.collection("order").doc(this.orderId).get()
+            // .then(checkOrder=> {
+                let doc = checkOrder.data()
+                let newOrderDetail = doc.detail
+                let detialCheck = []
+                newOrderDetail.forEach(item=>{
+                    if(item.numSend < item.num){
+                        item.num = item.num - item.numSend
+                        detialCheck.push(item)
                     }
                 })
+                detialCheck.forEach(product=>{
+                    product.maxNum = product.num
+                })
+                if(detialCheck.length == 0){
+                    db.collection("order").doc(this.orderId).update({
+                        status: "Closed"
+                    })
+                }
+            })
+        //   })
         },
 
         // Clear web page
-        clearOrder() {
+        clearOrder(){
             this.orderNo = ''
             this.orderDate = ''
             this.shipDate = ''
@@ -512,46 +531,36 @@ export default {
             this.showDetails = false
         },
     },
-    computed: {
+    computed:{
 
         // Calculate total
-        // sumTotal() {
-        //     return this.orderDetails.reduce((total, item) => total + (item.num * item.PriceMM), 0)
-        // },
+        sumTotal(){
+            return this.orderDetails.reduce((total,item) => total+(item.num * item.PriceMM),0)
+        },
 
-        // sumNet() {
-        //     return this.sumTotal - this.disc
-        // },
+        sumNet(){
+            return this.sumTotal - this.disc
+        },
 
         // Calculate balance
         // balance(){
         //     return this.sumNet - this.downAmt
         // }
     },
-    async mounted() {
+    mounted(){
         let app = this
-        // db.collection("order").where("down", "==", 0).get()
-        // .then(querySnapshot =>{
-        //     app.itemOrder = []
-        //     querySnapshot.forEach(doc =>{
-        //         let orderDoc = doc.data().orderNo
-        //         let nameDoc = doc.data().name
-        //         app.itemOrder.push(orderDoc + " " + ":" + " " + nameDoc)
-        //     })
-        // })
-
-        // Show order info in the select order no box
-        const db = getFirestore() 
-        const docRef = await getDocs(collection(db, "order"), where("status", "==", "Open"));
-            docRef.forEach(() => {
-                app.itemOrder = []
-                docRef.forEach(doc => {
-                    let orderDoc = doc.data().orderNo
-                    let nameDoc = doc.data().name
-                    app.itemOrder.push(orderDoc + " " + ":" + " " + nameDoc)
-                })
-                app.itemOrder.sort()
+        const db = getFirestore()
+        const q = query(collection(db, "order"), where("status", "==", "Open"));
+        onSnapshot(q, (snapshot) => {
+            app.itemOrder = []
+            snapshot.forEach((doc) => {
+            let orderDoc = doc.data().orderNo
+           let nameDoc = doc.data().name
+          app.itemOrder.push(orderDoc + " " + ":" + " " + nameDoc)
             })
+            app.itemOrder.sort()
+        })
+
     }
 }
 </script>

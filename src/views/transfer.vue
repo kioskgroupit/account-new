@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import { collection, getDocs, where, getFirestore, query, orderBy, onSnapshot } from "firebase/firestore";
+import { collection, getDocs, where, getFirestore, query, onSnapshot } from "firebase/firestore";
 // import VueNumeric from 'vue-numeric'
 // import mainMenu from '@/components/mainMenu.vue'
 

@@ -1003,7 +1003,6 @@ export default {
                     snapshot.forEach((doc) => {
                         let curDoc = doc.data().orederNo
                         console.log(doc.data())
-                        console.log(curDoc)
                         app.checkOrder.push(curDoc)
 
                     })
@@ -1101,7 +1100,7 @@ export default {
                                     app.showPrint = true
                                     // app.clearOrder()
                                 })
-                            }catch (e) {
+                              }catch (e) {
                                 console.log("Transaction failed: ", e);
                             }
                         // })
