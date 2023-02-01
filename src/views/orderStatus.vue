@@ -53,7 +53,17 @@
                                 <td>{{ props.item.shipDate }}</td>
                                 <td>{{ props.item.status }}</td>
                                 <td class="text-xs-center">{{ props.item.printed }}</td>
-                                <td class="text-xs-left">
+                                </template>
+                                      <template v-slot:item.actions="props">
+                                        <v-icon small class="mr-2"
+                                            @click="viewOrder(props.item)">mdi-eye</v-icon>
+                                            <v-icon small class="mr-2" @click="editItem(props.item)">mdi-pencil</v-icon>
+                                            <v-icon small class="mr-2" @click="printOrder(props.item)"  v-if="props.item.status == 'Open' && (props.item.code).substr(0, 1) !== 'M'">mdi-printer</v-icon>
+                                            <v-icon small class="mr-2" @click="printOrder(props.item)"
+                                            v-if="props.item.status == 'Open' && (props.item.code).substr(0, 1) == 'M'">mdi-printer</v-icon>
+                                           
+                                      </template>
+                                <!-- <td class="text-xs-left">
                                     <v-tooltip bottom>
                                         <template v-slot:activator="{ on }">
                                             <v-icon small class="mr-2" @click="viewOrder(props.item)"
@@ -82,16 +92,8 @@
                                         </template>
                                         <span>Print order</span>
                                     </v-tooltip>
-                                </td>
-                                <!-- <td class="text-xs-left">
-                                    <v-tooltip bottom v-if="props.item.status == 'Open' && (props.item.code).substr(0, 1) == 'M'">
-                                        <template v-slot:activator="{ on }">
-                                            <v-icon small v-on="on" color="red" @click="printDO(props.item)">print</v-icon>
-                                        </template>
-                                        <span>Print delivery order(DO)</span>
-                                    </v-tooltip>
                                 </td> -->
-                            </template>
+                             <!-- </template> -->
                         </v-data-table>
 
                         <!-- View order -->
@@ -336,11 +338,11 @@
                                         <v-layout>
                                             <v-flex xs3>
                                                 <v-menu v-model="menuShipDate" :close-on-content-click="false"
-                                                    :nudge-right="40" lazy transition="scale-transition" offset-y
-                                                    full-width min-width="290px">
+                                                    :nudge-right="40" transition="scale-transition" offset-y
+                                                     min-width="290px">
                                                     <template v-slot:activator="{ on }">
                                                         <v-text-field v-model="editOrder.shipDate"
-                                                            label="Shipping date:" prepend-icon="event"
+                                                            label="Shipping date:" prepend-icon="mdi-calendar"
                                                             v-on="on"></v-text-field>
                                                     </template>
                                                     <v-date-picker v-model="editOrder.shipDate"
@@ -361,8 +363,8 @@
                                 </v-card-text>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="red darken-1" flat @click="closeEdit()">Cancel</v-btn>
-                                    <v-btn color="blue darken-1" flat @click="saveEdit()">Save</v-btn>
+                                    <v-btn color="red darken-1" text @click="closeEdit()">Cancel</v-btn>
+                                    <v-btn color="blue darken-1" text @click="saveEdit()">Save</v-btn>
                                 </v-card-actions>
                             </v-card>
                         </v-dialog>
@@ -374,7 +376,7 @@
 </template>
 
 <script>
-import { collection, getDocs, where, getFirestore, setDoc, getDocFromServer, addDoc, orderBy, startAt, endAt } from "firebase/firestore";
+import { collection, where, getFirestore, onSnapshot, orderBy, startAt, endAt, query } from "firebase/firestore";
 import VueNumeric from 'vue-numeric'
 import mainMenu from '@/components/mainMenu.vue'
 
@@ -397,13 +399,13 @@ export default {
                 { text: 'Order no', value: 'orderNo', align: 'left' },
                 { text: 'Order date', value: 'orderDate', align: 'left' },
                 { text: 'Customer id', value: 'code', align: 'left' },
-                { text: 'Customer name', sortable: false, align: 'left' },
-                { text: 'Contact name', sortable: false, align: 'left' },
-                { text: 'Districts', sortable: false, align: 'left' },
+                { text: 'Customer name', value: 'name', sortable: false, align: 'left' },
+                { text: 'Contact name', value: 'contact', sortable: false, align: 'left' },
+                { text: 'Districts', value: 'district', sortable: false, align: 'left' },
                 { text: 'Shipping Date', value: 'shipDate', align: 'left' },
                 { text: 'Order status', value: 'status', align: 'left' },
-                { text: 'Printed', sortable: false, align: 'center' },
-                { text: '', sortable: false, align: 'left' },
+                { text: 'Printed', value: 'printed', sortable: false, align: 'center' },
+                { text: '', value: 'actions', sortable: false, align: 'left' },
             ],
             rowsPerPageItems: [50, 100, 200, 500],
             // options: { 'sortBy': 'orderDate', 'descending': true },
@@ -447,83 +449,88 @@ export default {
             countPayment: []
         }
     },
-    methods: {
+    methods:{
 
         // Search order by select month
-        changeMonth() {
+        changeMonth(){
             this.status = ""
             let nextMonth = new Date(this.searchMonth)
-            nextMonth.setMonth(nextMonth.getMonth() + 1)
+            nextMonth.setMonth(nextMonth.getMonth()+1)
             nextMonth = nextMonth.toISOString().substr(0, 7)
-            db.collection("order").where("orderDate", ">", this.searchMonth).where("orderDate", "<", nextMonth)
-                .onSnapshot(querySnapshot => {
-                    this.detail = []
-                    this.cloneDetail = []
-                    querySnapshot.forEach(doc => {
-                        this.detail.push(doc.data())
-                    })
-                    this.cloneDetail = this.detail
+            // db.collection("order").where("orderDate", ">", this.searchMonth).where("orderDate", "<", nextMonth)
+            // .onSnapshot(querySnapshot=>{
+            const db = getFirestore()
+            const q = query(collection(db, "order"), where("orderDate", ">", this.searchMonth), where("orderDate", "<", nextMonth));
+            onSnapshot(q, (snapshot) => {
+                this.detail = []
+                this.cloneDetail = []
+                snapshot.forEach(doc=>{
+                    this.detail.push(doc.data())
                 })
+                this.cloneDetail = this.detail
+            })
         },
 
         // Search order by last year
-        async searchYear() {
+        searchYear(){
             this.status = ""
-            let year = new Date().toISOString().substr(0, 4)
+            let year = new Date().toISOString().substr(0,4)
+            // db.collection("order").orderBy("orderDate").startAt(year).endAt(year + "\uf8ff")
             const db = getFirestore()
-            const docRef = await getDocs(collection(db, "order"), orderBy("orderDate"), startAt(year), endAt(year + "\uf8ff"));
-                docRef.forEach(()=> {
-                    this.detail = []
-                    this.cloneDetail = []
-                    docRef.forEach(doc => {
-                        this.detail.push(doc.data())
-                    })
-                    this.cloneDetail = this.detail
+            const q = query(collection(db, "order"), orderBy("orderDate"), startAt(year), endAt(year + "\uf8ff"));
+            onSnapshot(q, (snapshot)=>{
+                this.detail = []
+                this.cloneDetail = []
+                snapshot.forEach(doc=>{
+                    this.detail.push(doc.data())
                 })
+                this.cloneDetail = this.detail
+            })
         },
 
         // Filter from status
-        searchStatus() {
+        searchStatus(){
             // 'Open','Closed','Cancelled'
-            this.detail = this.cloneDetail.filter(rec => rec.status == this.status)
+            this.detail = this.cloneDetail.filter(rec=>rec.status == this.status)
         },
 
-        async viewOrder(item) {
+        viewOrder(item){
+            // db.collection("order").where("orderNo", "==", item.orderNo).get()
             const db = getFirestore()
-            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", item.orderNo));
-                docRef.forEach(querySnapshot => {
-                    if (querySnapshot.empty) {
-                        alert("Order No is not correct...\nPlease Try again")
-                        this.$refs.orderNo.focus()
-                    } else {
-                        this.showViewOrder = true
-                        let doc = querySnapshot.docs[0].data()
-                        let docId = querySnapshot.docs[0].id
+            const q = query(collection(db, "order"), where("orderNo", "==", item.orderNo));
+            onSnapshot(q, snapshot=> {
+                if(snapshot.empty){
+                    alert("Order No is not correct...\nPlease Try again")
+                    this.$refs.orderNo.focus()
+                }else{
+                    this.showViewOrder = true
+                    let doc = snapshot.docs[0].data()
+                    let docId = snapshot.docs[0].id
 
-                        this.orderId = docId
-                        this.orderNo = doc.orderNo
-                        this.orderDate = doc.orderDate.substr(0, 10)
-                        this.code = doc.code
-                        this.name = doc.name
-                        this.address = doc.address
-                        this.poRef = doc.poRef
-                        this.contact = doc.contact
-                        this.tel = doc.tel
-                        this.orderDetails = doc.detail
-                        this.shipAdd = doc.shipAdd
-                        this.shipDate = doc.shipDate
-                        this.district = doc.district
-                        this.countPayment = doc.countPayment
-                        this.disc = doc.disc
-                        this.remark = doc.remark
-                    }
-                })
+                    this.orderId = docId
+                    this.orderNo = doc.orderNo
+                    this.orderDate = doc.orderDate.substr(0,10)
+                    this.code = doc.code
+                    this.name = doc.name
+                    this.address = doc.address
+                    this.poRef = doc.poRef
+                    this.contact = doc.contact
+                    this.tel = doc.tel
+                    this.orderDetails = doc.detail
+                    this.shipAdd = doc.shipAdd
+                    this.shipDate = doc.shipDate
+                    this.district = doc.district
+                    this.countPayment = doc.countPayment
+                    this.disc = doc.disc
+                    this.remark = doc.remark
+                }
+            })
         },
 
         // Open dialog for edit order status
-        async editItem(item) {
+        editItem(item){
             this.showEdit = true
-            this.$nextTick(() => { this.$refs.focusShipAdd.focus() })
+            this.$nextTick(()=>{this.$refs.focusShipAdd.focus()})
             this.editOrder.orderNo = item.orderNo
             this.editOrder.orderDate = item.orderDate.substr(0, 10)
             this.editOrder.code = item.code
@@ -533,35 +540,33 @@ export default {
             this.editOrder.remark = item.remark
             this.editOrder.status = item.status
             this.editOrder.poRef = item.poRef
-            const db  = getFirestore()
-            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", this.editOrder.orderNo));
-                docRef.forEach(querySnapshot => {
-                    let docId = querySnapshot.docs[0].id
-                    this.idOrder = docId
-                })
-                // .catch(function (error) {
-                //     console.log("Error getting documents: ", error)
-                // })
+            db.collection("order").where("orderNo", "==", this.editOrder.orderNo).get()
+            .then(querySnapshot=> {
+                let docId = querySnapshot.docs[0].id
+                this.idOrder = docId
+            })
+            .catch(function(error){
+                console.log("Error getting documents: ", error)
+            })
         },
 
         // Update order status in the database
-        saveEdit() {
-            const db = getFirestore()
-            addDoc(collection(db, "order"). doc(this.idOrder). update({
+        saveEdit(){
+            db.collection("order").doc(this.idOrder).update({
                 poRef: this.editOrder.poRef,
                 shipAdd: this.editOrder.shipAdd,
                 shipDate: this.editOrder.shipDate,
                 remark: this.editOrder.remark,
                 status: this.editOrder.status
-            }))
-                .then(() => {
-                    this.closeEdit()
-                    alert("Update successfully.")
-                })
+            })
+            .then(()=>{
+                this.closeEdit()
+                alert("Update successfully.")
+            })
         },
 
         // Close dialog
-        closeEdit() {
+        closeEdit(){
             this.editOrder.orderNo = ''
             this.editOrder.orderDate = ''
             this.editOrder.code = ''
@@ -574,88 +579,86 @@ export default {
         },
 
         // Print order
-        async printOrder(item) {
-            const db = getFirestore()
-            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", item.orderNo));
-                docRef.forEach(querySnapshot => {
-                    let docId = querySnapshot.docs[0].id
-                    this.idOrder = docId
-                    // console.log(this.idOrder)
-                    addDoc(collection(db, "order").doc(this.idOrder).update({
-                        printed: item.printed + 1
-                    }))
-                        .then(() => {
-                            let routeData = this.$router.resolve({ name: 'orderReport', query: { orderNo: item.orderNo } })
-                            window.open(routeData.href, "_blank")
-                        })
+        printOrder(item) {
+            db.collection("order").where("orderNo", "==", item.orderNo).get()
+            .then(querySnapshot=> {
+                let docId = querySnapshot.docs[0].id
+                this.idOrder = docId
+                // console.log(this.idOrder)
+                db.collection("order").doc(this.idOrder).update({
+                    printed: item.printed + 1
                 })
-                // .catch(function (error) {
-                //     console.log("Error getting documents: ", error)
-                // })
+                .then(()=>{
+                    let routeData = this.$router.resolve({name: 'orderReport', query: {orderNo: item.orderNo}})
+                    window.open(routeData.href, "_blank")
+                })
+            })
+            .catch(function(error){
+                console.log("Error getting documents: ", error)
+            })
         },
 
         // Print pro1 order
-        async printPro1(item) {
-            const db = getFirestore()
-            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", item.orderNo));
-                docRef.forEach(querySnapshot => {
-                    let docId = querySnapshot.docs[0].id
-                    this.idOrder = docId
-                    // console.log(this.idOrder)
-                    addDoc(collection(db, "order").doc(this.idOrder).update({
-                        printed: item.printed + 1
-                    }))
-                        .then(() => {
-                            let routeData = this.$router.resolve({ name: 'orderproreport', query: { orderNo: item.orderNo } })
-                            window.open(routeData.href, "_blank")
-                        })
+        printPro1(item) {
+            db.collection("order").where("orderNo", "==", item.orderNo).get()
+            .then(querySnapshot=> {
+                let docId = querySnapshot.docs[0].id
+                this.idOrder = docId
+                // console.log(this.idOrder)
+                db.collection("order").doc(this.idOrder).update({
+                    printed: item.printed + 1
                 })
-                // .catch(function (error) {
-                //     console.log("Error getting documents: ", error)
-                // })
+                .then(()=>{
+                    let routeData = this.$router.resolve({name: 'orderproreport', query: {orderNo: item.orderNo}})
+                    window.open(routeData.href, "_blank")
+                })
+            })
+            .catch(function(error){
+                console.log("Error getting documents: ", error)
+            })
         },
 
         // Print delivery order
-        async printDO(item) {
-            const db = getFirestore()
-            const docRef = await getDocs(collection(db, "order"), where("orderNo", "==", item.orderNo));
-                docRef.forEach(querySnapshot => {
-                    let docId = querySnapshot.docs[0].id
-                    this.idOrder = docId
-                    addDoc(collection(db, "order").doc(this.idOrder).update({
-                        printed: item.printed + 1
-                    }))
-                        .then(() => {
-                            let routeData = this.$router.resolve({ name: 'orderReportDO', query: { orderNo: item.orderNo } })
-                            window.open(routeData.href, "_blank")
-                        })
+        printDO(item) {
+            db.collection("order").where("orderNo", "==", item.orderNo).get()
+            .then(querySnapshot=> {
+                let docId = querySnapshot.docs[0].id
+                this.idOrder = docId
+                db.collection("order").doc(this.idOrder).update({
+                    printed: item.printed + 1
                 })
-                // .catch(function (error) {
-                //     console.log("Error getting documents: ", error)
-                // })
+                .then(()=>{
+                    let routeData = this.$router.resolve({name: 'orderReportDO', query: {orderNo: item.orderNo}})
+                    window.open(routeData.href, "_blank")
+                })
+            })
+            .catch(function(error){
+                console.log("Error getting documents: ", error)
+            })
         }
     },
-    computed: {
+    computed:{
 
         // Calculate total
-        sumTotal() {
-            return this.orderDetails.reduce((total, item) => total + (item.amt), 0)
+        sumTotal(){
+            return this.orderDetails.reduce((total,item) => total+(item.amt),0)
         },
     },
-    async mounted() {
+    mounted(){
         let nextMonth = new Date(this.searchMonth)
-        nextMonth.setMonth(nextMonth.getMonth() + 1)
+        nextMonth.setMonth(nextMonth.getMonth()+1)
         nextMonth = nextMonth.toISOString().substr(0, 7)
+        // db.collection("order").where("orderDate", ">", this.searchMonth).where("orderDate", "<", nextMonth)
         const db = getFirestore()
-        const docRef = await getDocs(collection(db, "order"), where("orderDate", ">", this.searchMonth), where("orderDate", "<", nextMonth))
-            docRef.forEach(() => {
-                this.detail = []
-                this.cloneDetail = []
-                docRef.forEach(doc => {
-                    this.detail.push(doc.data())
-                })
-                this.cloneDetail = this.detail
+        const q = query(collection(db, "order"), where("orderDate", ">", this.searchMonth), where("orderDate", "<", nextMonth));
+            onSnapshot(q, (snapshot) => {
+            this.detail = []
+            this.cloneDetail = []
+            snapshot.forEach(doc=>{
+                this.detail.push(doc.data())
             })
+            this.cloneDetail = this.detail
+        })
     }
 }
 </script>

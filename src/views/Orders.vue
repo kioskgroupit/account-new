@@ -696,8 +696,9 @@ export default {
             }
             else {
                 let app = this
+                // db.collection("customer").orderBy("code").startAt(this.searchCode.toUpperCase()).endAt(this.searchCode.toUpperCase() + "\uf8ff").get()
                 const db = getFirestore()
-                const q = query(collection(db, "customer"), orderBy('code'), startAt(this.searchCode), endAt(this.searchCode + '\uf8ff'));
+                const q = query(collection(db, "customer"), orderBy('code'), startAt(this.searchCode.toUpperCase()), endAt(this.searchCode.toUpperCase() + '\uf8ff'));
                 onSnapshot(q, (snapshot) => {
                     app.customer = []
                     snapshot.docs.map((doc) => {
@@ -876,7 +877,8 @@ export default {
                 this.$refs.focusProdCode.focus()
             }
             else {
-
+                // db.collection("code").doc("productcode").collection("proCode").orderBy("Code")
+                //     .startAt(this.prod.Code).endAt(this.prod.Code + "\uf8ff").get()
                 const db = getFirestore()
                 const docRef = doc(db, "code", "productcode");
                 const docSnap = query(collection(docRef, "proCode"));
